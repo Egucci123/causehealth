@@ -48,8 +48,9 @@ export default function Step6Goals({ onNext }: StepProps) {
 
       await updateProfile({ primary_goals: goals });
       onNext();
-    } catch {
-      // Network error handled silently
+    } catch (err) {
+      console.error('Failed to save goals:', err);
+      alert('Failed to save. Please try again.');
     } finally {
       setSaving(false);
     }
