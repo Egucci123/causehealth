@@ -155,7 +155,7 @@ export default function Step3Medications({ onNext }: StepProps) {
                         updateMedication(med.localId, 'name', e.target.value)
                       }
                       placeholder="e.g. Atorvastatin"
-                      className="w-full bg-white rounded-2xl py-3 px-4 shadow-[0_8px_24px_rgba(14,55,39,0.04)] text-sm text-[#012D1D] placeholder:text-[#414844]/40 focus:outline-none focus:ring-2 focus:ring-[#3F665C]/30"
+                      className="w-full bg-[#EFEEEB] rounded-xl py-3 px-4 border border-[#C1C8C2]/30 text-sm text-[#012D1D] placeholder:text-[#414844]/40 focus:outline-none focus:ring-2 focus:ring-[#3F665C]/30"
                     />
                   </div>
                   <div>
@@ -169,7 +169,7 @@ export default function Step3Medications({ onNext }: StepProps) {
                         updateMedication(med.localId, 'dose', e.target.value)
                       }
                       placeholder="e.g. 20mg"
-                      className="w-full bg-white rounded-2xl py-3 px-4 shadow-[0_8px_24px_rgba(14,55,39,0.04)] text-sm text-[#012D1D] placeholder:text-[#414844]/40 focus:outline-none focus:ring-2 focus:ring-[#3F665C]/30"
+                      className="w-full bg-[#EFEEEB] rounded-xl py-3 px-4 border border-[#C1C8C2]/30 text-sm text-[#012D1D] placeholder:text-[#414844]/40 focus:outline-none focus:ring-2 focus:ring-[#3F665C]/30"
                     />
                   </div>
                 </div>
@@ -183,7 +183,7 @@ export default function Step3Medications({ onNext }: StepProps) {
                     onChange={(e) =>
                       updateMedication(med.localId, 'frequency', e.target.value)
                     }
-                    className="w-full bg-white rounded-2xl py-3 px-4 shadow-[0_8px_24px_rgba(14,55,39,0.04)] text-sm text-[#012D1D] focus:outline-none focus:ring-2 focus:ring-[#3F665C]/30 appearance-none"
+                    className="w-full bg-[#EFEEEB] rounded-xl py-3 px-4 border border-[#C1C8C2]/30 text-sm text-[#012D1D] focus:outline-none focus:ring-2 focus:ring-[#3F665C]/30 appearance-none"
                   >
                     {FREQUENCY_OPTIONS.map((opt) => (
                       <option key={opt.value} value={opt.value}>

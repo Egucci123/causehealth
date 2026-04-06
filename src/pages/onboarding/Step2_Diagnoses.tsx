@@ -147,7 +147,7 @@ export default function Step2Diagnoses({ onNext }: StepProps) {
             placeholder="Search diagnoses..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-10 pr-4 bg-white rounded-2xl py-3 px-4 shadow-[0_8px_24px_rgba(14,55,39,0.04)] text-sm text-[#012D1D] placeholder:text-[#414844]/40 focus:outline-none focus:ring-2 focus:ring-[#3F665C]/30"
+            className="w-full pl-10 pr-4 bg-[#EFEEEB] rounded-xl py-3 px-4 border border-[#C1C8C2]/30 text-sm text-[#012D1D] placeholder:text-[#414844]/40 focus:outline-none focus:ring-2 focus:ring-[#3F665C]/30"
           />
         </div>
 
@@ -178,7 +178,7 @@ export default function Step2Diagnoses({ onNext }: StepProps) {
             value={customDiagnosis}
             onChange={(e) => setCustomDiagnosis(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && addCustom()}
-            className="flex-1 bg-white rounded-2xl py-3 px-4 shadow-[0_8px_24px_rgba(14,55,39,0.04)] text-sm text-[#012D1D] placeholder:text-[#414844]/40 focus:outline-none focus:ring-2 focus:ring-[#3F665C]/30"
+            className="flex-1 bg-[#EFEEEB] rounded-xl py-3 px-4 border border-[#C1C8C2]/30 text-sm text-[#012D1D] placeholder:text-[#414844]/40 focus:outline-none focus:ring-2 focus:ring-[#3F665C]/30"
           />
           <button
             onClick={addCustom}

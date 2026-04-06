@@ -22,6 +22,10 @@ async function callClaude(
   messages: ClaudeMessage[],
   maxTokens = 4096
 ): Promise<string> {
+  if (!API_KEY || API_KEY === 'PASTE_YOUR_ANTHROPIC_API_KEY_HERE') {
+    throw new Error('Anthropic API key not configured. Please add VITE_ANTHROPIC_API_KEY to your .env file.');
+  }
+
   const response = await fetch(API_URL, {
     method: 'POST',
     headers: {

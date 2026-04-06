@@ -3,7 +3,11 @@ import { extractLabsWithAI } from '@/lib/claude';
 import { OPTIMAL_RANGES } from '@/data/optimalRanges';
 import type { ExtractedLabValue, LabValue } from '@/types/lab.types';
 
-pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.mjs`;
+// Use the worker from node_modules — CDN may not have this version
+pdfjsLib.GlobalWorkerOptions.workerSrc = new URL(
+  'pdfjs-dist/build/pdf.worker.min.mjs',
+  import.meta.url
+).toString();
 
 export async function extractLabValues(pdfFile: File): Promise<ExtractedLabValue[]> {
   try {

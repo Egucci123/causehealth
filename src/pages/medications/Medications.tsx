@@ -725,7 +725,7 @@ function AddMedicationModal({
             exit={{ y: '100%' }}
             transition={{ type: 'spring', damping: 28, stiffness: 300 }}
             onClick={(e) => e.stopPropagation()}
-            className="w-full max-w-lg bg-white rounded-t-3xl p-6 pb-10 font-['Manrope',sans-serif]"
+            className="w-full max-w-lg bg-white rounded-t-3xl p-6 pb-28 max-h-[85vh] overflow-y-auto font-['Manrope',sans-serif]"
           >
             {/* Drag handle */}
             <div className="w-10 h-1 rounded-full bg-[#414844]/20 mx-auto mb-5" />
@@ -747,7 +747,7 @@ function AddMedicationModal({
                     value={formName}
                     onChange={(e) => onNameChange(e.target.value)}
                     placeholder="Start typing a medication name..."
-                    className="w-full bg-[#F5F0E8] rounded-2xl pl-10 pr-4 py-3 text-sm text-[#012D1D] placeholder:text-[#414844]/40 outline-none focus:ring-2 focus:ring-[#012D1D]/20"
+                    className="w-full bg-[#EFEEEB] rounded-xl border border-[#C1C8C2]/30 pl-10 pr-4 py-3 text-sm text-[#012D1D] placeholder:text-[#414844]/40 outline-none focus:ring-2 focus:ring-[#012D1D]/20"
                     autoFocus
                   />
                 </div>
@@ -784,7 +784,7 @@ function AddMedicationModal({
                     value={formDose}
                     onChange={(e) => onDoseChange(e.target.value)}
                     placeholder="e.g., 20mg"
-                    className="w-full bg-[#F5F0E8] rounded-2xl px-4 py-3 text-sm text-[#012D1D] placeholder:text-[#414844]/40 outline-none focus:ring-2 focus:ring-[#012D1D]/20"
+                    className="w-full bg-[#EFEEEB] rounded-xl border border-[#C1C8C2]/30 px-4 py-3 text-sm text-[#012D1D] placeholder:text-[#414844]/40 outline-none focus:ring-2 focus:ring-[#012D1D]/20"
                   />
                 </div>
                 <div>
@@ -794,7 +794,7 @@ function AddMedicationModal({
                   <select
                     value={formFrequency}
                     onChange={(e) => onFrequencyChange(e.target.value)}
-                    className="w-full bg-[#F5F0E8] rounded-2xl px-4 py-3 text-sm text-[#012D1D] outline-none focus:ring-2 focus:ring-[#012D1D]/20 appearance-none"
+                    className="w-full bg-[#EFEEEB] rounded-xl border border-[#C1C8C2]/30 px-4 py-3 text-sm text-[#012D1D] outline-none focus:ring-2 focus:ring-[#012D1D]/20 appearance-none"
                   >
                     <option value="">Select...</option>
                     {FREQUENCY_OPTIONS.map((o) => (
@@ -814,7 +814,7 @@ function AddMedicationModal({
                   value={formCondition}
                   onChange={(e) => onConditionChange(e.target.value)}
                   placeholder="What is this prescribed for?"
-                  className="w-full bg-[#F5F0E8] rounded-2xl px-4 py-3 text-sm text-[#012D1D] placeholder:text-[#414844]/40 outline-none focus:ring-2 focus:ring-[#012D1D]/20"
+                  className="w-full bg-[#EFEEEB] rounded-xl border border-[#C1C8C2]/30 px-4 py-3 text-sm text-[#012D1D] placeholder:text-[#414844]/40 outline-none focus:ring-2 focus:ring-[#012D1D]/20"
                 />
               </div>
 

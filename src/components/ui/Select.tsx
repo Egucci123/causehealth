@@ -14,7 +14,7 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(
     return (
       <div className="w-full">
         {label && (
-          <label htmlFor={selectId} className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+          <label htmlFor={selectId} className="block text-[10px] font-bold uppercase tracking-wider text-[#414844]/60 mb-1.5">
             {label}
           </label>
         )}
@@ -22,12 +22,10 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(
           ref={ref}
           id={selectId}
           className={clsx(
-            'w-full px-4 py-2.5 rounded-lg border text-sm transition-colors duration-200 appearance-none',
-            'bg-white dark:bg-slate-800 text-slate-warm dark:text-slate-200',
-            'focus:outline-none focus:ring-2 focus:ring-teal-400 focus:border-teal-400',
-            error
-              ? 'border-rose-300 focus:ring-rose-400'
-              : 'border-slate-200 dark:border-slate-600',
+            'w-full px-4 py-3 rounded-xl text-sm transition-colors duration-200 appearance-none',
+            'bg-[#EFEEEB] text-[#1B1C1A] border border-[#C1C8C2]/30',
+            'focus:outline-none focus:ring-2 focus:ring-[#1B4332]/20 focus:border-[#1B4332]/30',
+            error && 'ring-2 ring-[#BA1A1A]/30',
             className
           )}
           {...props}
@@ -37,7 +35,7 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(
             <option key={opt.value} value={opt.value}>{opt.label}</option>
           ))}
         </select>
-        {error && <p className="mt-1 text-sm text-rose-500">{error}</p>}
+        {error && <p className="mt-1 text-sm text-[#BA1A1A]">{error}</p>}
       </div>
     );
   }
