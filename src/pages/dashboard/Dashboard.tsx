@@ -68,150 +68,115 @@ export default function Dashboard() {
   const depletions = getMedDepletions(medications);
   const firstName = profile?.first_name || 'there';
 
+  const scoreDescription = healthScore !== null
+    ? `Based on ${labValues.length} markers from your most recent lab panel.`
+    : 'Upload your lab results to calculate your personalized health score.';
+
+  // Insight card content
+  let insightLabel = 'Get Started';
+  let insightHeadline = 'Upload labs to unlock insights.';
+  let insightDesc = 'We analyze your biomarkers against optimal ranges, detect medication depletions, and map root causes.';
+  let insightLink = '/app/labs/upload';
+  let insightLinkText = 'Upload your first panel';
+
+  if (depletions.length > 0) {
+    insightLabel = 'Depletion Alert';
+    insightHeadline = `${depletions[0].med} may deplete key nutrients.`;
+    insightDesc = `${depletions[0].nutrients.slice(0, 3).join(', ')} could be affected.${depletions.length > 1 ? ` Plus ${depletions.length - 1} more medication${depletions.length - 1 > 1 ? 's' : ''}.` : ''}`;
+    insightLink = '/app/medications';
+    insightLinkText = 'View medication details';
+  } else if (labValues.length > 0) {
+    insightLabel = 'Lab Insight';
+    insightHeadline = 'Patterns detected across your markers.';
+    insightDesc = `${optimalCount} of ${labValues.length} markers are in the optimal range. Review your full panel for detailed root-cause analysis.`;
+    insightLink = `/app/labs/${latestDraw?.id}`;
+    insightLinkText = 'View full lab panel';
+  }
+
   return (
-    <div className="max-w-3xl mx-auto space-y-12">
+    <div className="space-y-12">
 
-      {/* ── 1. GREETING ── */}
-      <section>
-        <h1 className="font-['Fraunces',serif] italic text-4xl tracking-tight text-[#1A3C34] leading-tight">
+      {/* -- 1. GREETING -- */}
+      <section className="space-y-1">
+        <h2 className="text-4xl font-['Fraunces',serif] tracking-tight text-[#01261F]">
           {getGreeting()}
-          <br />
-          {firstName}.
-        </h1>
-        <p className="mt-3 text-[#414844] font-['Manrope',sans-serif] text-base max-w-sm leading-relaxed">
-          {labValues.length > 0
-            ? `${optimalCount} markers optimal${criticalCount > 0 ? `, ${criticalCount} need attention` : ', everything trending well'}. Here is what your body is telling us.`
-            : 'Your health journey starts here. Upload your first lab panel to unlock personalized insights.'}
-        </p>
+        </h2>
+        <p className="text-lg text-[#414846]">Your health overview is ready.</p>
       </section>
 
-      {/* ── 2. HEALTH SCORE CARD ── */}
-      <section>
-        <div className="bg-white rounded-[32px] p-8 shadow-[0_8px_32px_-4px_rgba(27,28,26,0.06)] relative overflow-hidden">
-          {/* Label */}
-          <span className="text-[10px] uppercase tracking-[0.2em] font-bold text-[#414844]">
-            Health Score
-          </span>
-
-          {/* Score */}
-          <div className="mt-4 flex items-baseline gap-1">
-            <span className="font-['Fraunces',serif] italic text-7xl text-[#1A3C34] leading-none">
-              {healthScore ?? '--'}
-            </span>
-            <span className="font-['Manrope',sans-serif] text-2xl text-[#1A3C34]/30 font-medium">/100</span>
+      {/* -- 2. BENTO GRID -- */}
+      <section className="grid grid-cols-1 md:grid-cols-12 gap-6">
+        {/* Health Score Card */}
+        <div className="md:col-span-7 bg-white rounded-[32px] p-8 shadow-[0_8px_32px_-4px_rgba(27,28,26,0.06)] flex flex-col justify-between relative overflow-hidden group">
+          <div className="relative z-10">
+            <h3 className="text-xs uppercase tracking-[0.2em] font-bold text-[#414846] mb-6">HEALTH SCORE</h3>
+            <div className="flex items-end gap-2">
+              <span className="text-7xl font-['Fraunces',serif] italic text-[#01261F]">
+                {healthScore ?? '--'}
+              </span>
+              <span className="text-xl font-['Fraunces',serif] text-[#BDAC52] pb-2">/100</span>
+            </div>
+            <p className="text-sm text-[#414846] mt-4 max-w-[200px]">{scoreDescription}</p>
           </div>
 
-          {/* Subtitle */}
-          <p className="mt-3 text-sm text-[#414844] font-['Manrope',sans-serif] leading-relaxed max-w-xs">
-            {healthScore !== null
-              ? `Based on ${labValues.length} markers from your most recent lab panel.`
-              : 'Upload your lab results to calculate your personalized health score.'}
-          </p>
+          {/* Decorative gauge */}
+          <div className="absolute -right-12 -bottom-12 w-64 h-64 opacity-[0.07] group-hover:opacity-[0.15] transition-opacity duration-700">
+            <svg viewBox="0 0 100 100" className="w-full h-full -rotate-90">
+              <circle cx="50" cy="50" r="40" fill="none" stroke="#1A3C34" strokeWidth="8" strokeDasharray="251.2" strokeDashoffset="30" />
+            </svg>
+          </div>
 
-          {/* Decorative circle */}
-          <svg className="absolute -bottom-16 -right-16 w-56 h-56 opacity-[0.07]" viewBox="0 0 200 200">
-            <circle cx="100" cy="100" r="90" fill="none" stroke="#1A3C34" strokeWidth="6" />
-            <circle cx="100" cy="100" r="60" fill="none" stroke="#1A3C34" strokeWidth="4" />
-          </svg>
-
-          {/* Divider + sub-stats */}
-          <div className="mt-6 pt-6 border-t border-[#C1C8C2]/10 flex justify-between">
-            <div>
-              <span className="text-[10px] uppercase tracking-[0.2em] font-bold text-[#414844]">Optimal Markers</span>
-              <p className="font-['Fraunces',serif] italic text-2xl text-[#1A3C34] mt-1">
-                {labValues.length > 0 ? optimalCount : '--'}
-              </p>
+          {/* Sub stats */}
+          <div className="mt-8 pt-6 border-t border-[#C1C8C4]/10 flex gap-4">
+            <div className="flex flex-col">
+              <span className="text-[10px] uppercase tracking-widest text-[#414846]">Optimal Markers</span>
+              <span className="font-bold text-[#01261F]">{labValues.length > 0 ? optimalCount : '--'}</span>
             </div>
-            <div className="text-right">
-              <span className="text-[10px] uppercase tracking-[0.2em] font-bold text-[#414844]">Critical</span>
-              <p className={`font-['Fraunces',serif] italic text-2xl mt-1 ${criticalCount > 0 ? 'text-[#BA1A1A]' : 'text-[#1A3C34]'}`}>
+            <div className="w-px h-8 bg-[#C1C8C4]/20"></div>
+            <div className="flex flex-col">
+              <span className="text-[10px] uppercase tracking-widest text-[#414846]">Critical</span>
+              <span className={`font-bold ${criticalCount > 0 ? 'text-[#BA1A1A]' : 'text-[#01261F]'}`}>
                 {labValues.length > 0 ? criticalCount : '--'}
-              </p>
+              </span>
             </div>
           </div>
         </div>
-      </section>
 
-      {/* ── 3. LONGEVITY / INSIGHT CARD (Dark) ── */}
-      <section>
-        <div className="bg-[#1A3C34] text-white rounded-[32px] p-8 relative overflow-hidden">
-          {depletions.length > 0 ? (
-            <>
-              <span className="text-[10px] uppercase tracking-[0.2em] font-bold text-[#86AF99]">
-                Depletion Alert
-              </span>
-              <h2 className="font-['Fraunces',serif] italic text-2xl mt-3 leading-snug">
-                {depletions[0].med} may be depleting key nutrients.
-              </h2>
-              <p className="mt-3 text-sm text-white/70 font-['Manrope',sans-serif] leading-relaxed">
-                {depletions[0].nutrients.slice(0, 3).join(', ')} could be affected.
-                {depletions.length > 1 && ` Plus ${depletions.length - 1} more medication${depletions.length - 1 > 1 ? 's' : ''} with known depletions.`}
-              </p>
-              <Link
-                to="/app/medications"
-                className="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-white font-['Manrope',sans-serif]"
-              >
-                View medication details <ArrowRight className="w-4 h-4" />
-              </Link>
-            </>
-          ) : labValues.length > 0 ? (
-            <>
-              <span className="text-[10px] uppercase tracking-[0.2em] font-bold text-[#86AF99]">
-                Lab Insight
-              </span>
-              <h2 className="font-['Fraunces',serif] italic text-2xl mt-3 leading-snug">
-                Patterns detected across your markers.
-              </h2>
-              <p className="mt-3 text-sm text-white/70 font-['Manrope',sans-serif] leading-relaxed">
-                {optimalCount} of {labValues.length} markers are in the optimal range. Review your full panel for detailed root-cause analysis.
-              </p>
-              <Link
-                to={`/app/labs/${latestDraw?.id}`}
-                className="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-white font-['Manrope',sans-serif]"
-              >
-                View full lab panel <ArrowRight className="w-4 h-4" />
-              </Link>
-            </>
-          ) : (
-            <>
-              <span className="text-[10px] uppercase tracking-[0.2em] font-bold text-[#86AF99]">
-                Get Started
-              </span>
-              <h2 className="font-['Fraunces',serif] italic text-2xl mt-3 leading-snug">
-                Upload labs to unlock your health insights.
-              </h2>
-              <p className="mt-3 text-sm text-white/70 font-['Manrope',sans-serif] leading-relaxed">
-                We analyze your biomarkers against optimal ranges, detect medication depletions, and map root causes.
-              </p>
-              <Link
-                to="/app/labs/upload"
-                className="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-white font-['Manrope',sans-serif]"
-              >
-                Upload your first panel <ArrowRight className="w-4 h-4" />
-              </Link>
-            </>
-          )}
+        {/* Insight Card (dark) */}
+        <div className="md:col-span-5 bg-[#1A3C34] text-white rounded-[32px] p-8 relative overflow-hidden flex flex-col justify-between">
+          <div className="relative z-10">
+            <h3 className="text-xs uppercase tracking-[0.2em] font-bold text-[#83A69C] mb-2">{insightLabel}</h3>
+            <div className="text-4xl font-['Fraunces',serif] italic">{insightHeadline}</div>
+            <p className="text-[#83A69C] text-sm mt-2">{insightDesc}</p>
+          </div>
 
-          {/* Badge */}
           {healthScore !== null && healthScore >= 70 && (
-            <div className="mt-6 bg-white/10 backdrop-blur-md rounded-2xl p-4 inline-block">
-              <span className="text-sm font-['Manrope',sans-serif] font-semibold text-white/90">
-                Top {Math.max(5, 100 - healthScore)}% of your demographic
-              </span>
+            <div className="mt-6 flex items-center gap-3 bg-white/10 backdrop-blur-md rounded-2xl p-4">
+              <span className="text-xs font-medium">Top {Math.max(5, 100 - healthScore)}% of your demographic</span>
             </div>
           )}
+
+          <Link
+            to={insightLink}
+            className="mt-4 inline-flex items-center gap-2 text-sm font-semibold relative z-10"
+          >
+            {insightLinkText} <ArrowRight className="w-4 h-4" />
+          </Link>
+
+          {/* Gradient overlay */}
+          <div className="absolute top-0 right-0 w-full h-full bg-gradient-to-br from-[#01261F] via-transparent to-transparent opacity-50"></div>
         </div>
       </section>
 
-      {/* ── 4. YOUR TOOLKIT (2x2 Grid) ── */}
-      <section>
-        <div className="flex justify-between items-baseline mb-6">
-          <h2 className="font-['Fraunces',serif] italic text-2xl text-[#1A3C34]">Your Toolkit</h2>
-          <Link to="/app/wellness" className="text-[10px] uppercase tracking-[0.2em] font-bold text-[#414844]">
+      {/* -- 3. YOUR TOOLKIT -- */}
+      <section className="space-y-8">
+        <div className="flex justify-between items-end">
+          <h2 className="text-3xl font-['Fraunces',serif] tracking-tight text-[#01261F]">Your Toolkit</h2>
+          <button className="text-sm font-bold text-[#01261F] border-b border-[#6C5E06]/40 pb-0.5 tracking-tight">
             Manage
-          </Link>
+          </button>
         </div>
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {[
             { to: '/app/wellness', icon: Activity, label: 'Wellness Plan', desc: 'AI-generated protocol' },
             { to: '/app/doctor-prep', icon: Stethoscope, label: 'Doctor Prep', desc: 'ICD-10 documents' },
@@ -221,75 +186,59 @@ export default function Dashboard() {
             <Link
               key={item.to}
               to={item.to}
-              className="bg-white rounded-[32px] p-6 shadow-[0_8px_32px_-4px_rgba(27,28,26,0.06)] hover:shadow-[0_12px_40px_-4px_rgba(27,28,26,0.10)] transition-shadow"
+              className="bg-[#F4F4F0] p-6 rounded-[24px] hover:scale-[1.02] transition-transform duration-300 cursor-pointer group"
             >
-              <div className="w-11 h-11 rounded-full bg-[#F5F3F0] flex items-center justify-center mb-4">
-                <item.icon className="w-5 h-5 text-[#1A3C34]" strokeWidth={1.5} />
+              <div className="w-12 h-12 rounded-2xl bg-white flex items-center justify-center mb-6 shadow-sm group-hover:shadow-md transition-shadow">
+                <item.icon className="w-5 h-5 text-[#01261F]" strokeWidth={1.5} />
               </div>
-              <p className="text-sm font-semibold text-[#1B1C1A] font-['Manrope',sans-serif]">{item.label}</p>
-              <p className="text-[11px] text-[#414844] mt-1 font-['Manrope',sans-serif]">{item.desc}</p>
+              <h4 className="font-bold text-sm text-[#01261F] mb-1">{item.label}</h4>
+              <p className="text-[11px] text-[#414846] leading-relaxed">{item.desc}</p>
             </Link>
           ))}
         </div>
       </section>
 
-      {/* ── 5. ACTIVE PROTOCOL ── */}
-      <section>
-        <div className="bg-[#F5F3F0] rounded-[32px] p-8">
-          <span className="text-[10px] uppercase tracking-[0.2em] font-bold text-[#414844]">
-            Active Protocol
-          </span>
-          <h2 className="font-['Fraunces',serif] italic text-2xl text-[#1A3C34] mt-3">
-            Your Wellness Plan
-          </h2>
-          {labValues.length > 0 ? (
-            <>
-              <p className="mt-3 text-sm text-[#414844] font-['Manrope',sans-serif] leading-relaxed max-w-md">
-                {criticalCount > 0
+      {/* -- 4. ACTIVE PROTOCOL -- */}
+      <section className="pb-12">
+        <div className="bg-[#E9E8E4] rounded-[40px] p-1 overflow-hidden">
+          <div className="bg-white rounded-[38px] p-10 space-y-6">
+            <div className="inline-block px-3 py-1 rounded-full bg-[#6C5E06]/10 text-[#6C5E06] text-[10px] font-bold uppercase tracking-widest">
+              Active Protocol
+            </div>
+            <h2 className="text-4xl font-['Fraunces',serif] text-[#01261F]">Your Wellness Plan</h2>
+            <p className="text-[#414846] leading-relaxed italic">
+              {labValues.length > 0
+                ? criticalCount > 0
                   ? `Focus on the ${criticalCount} marker${criticalCount > 1 ? 's' : ''} that need attention. Your plan includes targeted supplement and lifestyle recommendations.`
-                  : `All ${optimalCount} optimal markers are holding steady. Your plan focuses on maintaining these levels and optimizing the rest.`}
-              </p>
-              <Link
-                to="/app/wellness"
-                className="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-[#1A3C34] font-['Manrope',sans-serif]"
-              >
-                View your plan <ArrowRight className="w-4 h-4" />
-              </Link>
-            </>
-          ) : (
-            <>
-              <p className="mt-3 text-sm text-[#414844] font-['Manrope',sans-serif] leading-relaxed max-w-md">
-                Generate your first wellness plan. Upload labs and we will create a personalized protocol based on your biomarkers.
-              </p>
-              <Link
-                to="/app/labs/upload"
-                className="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-[#1A3C34] font-['Manrope',sans-serif]"
-              >
-                Get started <ArrowRight className="w-4 h-4" />
-              </Link>
-            </>
-          )}
+                  : `All ${optimalCount} optimal markers are holding steady. Your plan focuses on maintaining these levels and optimizing the rest.`
+                : 'Generate your first wellness plan. Upload labs and we will create a personalized protocol based on your biomarkers.'}
+            </p>
+            <Link
+              to={labValues.length > 0 ? '/app/wellness' : '/app/labs/upload'}
+              className="inline-flex items-center gap-2 text-sm font-semibold text-[#01261F]"
+            >
+              {labValues.length > 0 ? 'View your plan' : 'Get started'} <ArrowRight className="w-4 h-4" />
+            </Link>
+          </div>
         </div>
       </section>
 
-      {/* ── 6. UPLOAD CTA (if no labs) ── */}
+      {/* -- 5. UPLOAD CTA (if no labs) -- */}
       {labValues.length === 0 && (
         <section>
           <Link
             to="/app/labs/upload"
-            className="block bg-[#1A3C34] rounded-[32px] p-8 text-white hover:opacity-95 transition-opacity"
+            className="block bg-[#1A3C34] text-white rounded-[32px] p-8 text-center"
           >
-            <Upload className="w-8 h-8 mb-4 text-white/60" />
-            <h3 className="font-['Fraunces',serif] italic text-2xl mb-2">Upload Your Labs</h3>
-            <p className="text-sm text-white/70 font-['Manrope',sans-serif] leading-relaxed max-w-sm">
-              Get your personalized health score, biomarker insights, and medication depletion analysis.
-            </p>
+            <Upload className="w-8 h-8 mx-auto mb-3 opacity-60" />
+            <h3 className="font-['Fraunces',serif] text-xl mb-2">Upload Your Labs</h3>
+            <p className="text-sm text-[#83A69C]">Get your personalized health score and biomarker insights.</p>
           </Link>
         </section>
       )}
 
-      {/* ── 7. DISCLAIMER ── */}
-      <p className="text-[10px] text-[#414844]/40 text-center leading-relaxed font-['Manrope',sans-serif] pb-4">
+      {/* -- DISCLAIMER -- */}
+      <p className="text-[10px] text-[#414846]/40 text-center leading-relaxed pb-4">
         {STANDARD_DISCLAIMER}
       </p>
     </div>

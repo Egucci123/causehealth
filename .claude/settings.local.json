@@ -60,7 +60,9 @@
       "Bash(for f:*)",
       "Bash(sed -i 's/bg-white rounded-2xl py-3 px-4 shadow-\\\\[0_8px_24px_rgba\\(14,55,39,0.04\\)\\\\]/bg-[#EFEEEB] rounded-xl py-3 px-4 border border-[#C1C8C2]\\\\/30/g' \"$f\")",
       "Bash(echo \"Fixed inputs in $f\")",
-      "Bash(cp /tmp/stitch$i/code.html \"C:/Users/egut/OneDrive/Documents/cause health/code$i.html\")"
+      "Bash(cp /tmp/stitch$i/code.html \"C:/Users/egut/OneDrive/Documents/cause health/code$i.html\")",
+      "WebFetch(domain:causehealth.vercel.app)",
+      "Bash(start \"\" \"C:/Users/egut/OneDrive/Documents/cause health/UI_AUDIT.md\")"
     ]
   }
 }
