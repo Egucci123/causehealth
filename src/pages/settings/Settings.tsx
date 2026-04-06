@@ -2,123 +2,16 @@ import { useState } from 'react';
 import { motion } from 'framer-motion';
 import {
   User,
-  Bell,
-  Lock,
-  CreditCard,
-  Save,
-  Trash2,
-  Download,
-  AlertTriangle,
-  Moon,
+  Shield,
+  Palette,
   Sun,
-  Check,
-  Crown,
-  Zap,
-  Users,
+  Moon,
+  ArrowLeft,
+  ChevronRight,
 } from 'lucide-react';
-import { PageHeader } from '@/components/layout/PageHeader';
-import { Button } from '@/components/ui/Button';
-import { Card } from '@/components/ui/Card';
-import { Input } from '@/components/ui/Input';
-import { Select } from '@/components/ui/Select';
-import { Tabs } from '@/components/ui/Tabs';
-import { Badge } from '@/components/ui/Badge';
-import { Modal } from '@/components/ui/Modal';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/lib/supabase';
 import { useUIStore } from '@/store/uiStore';
-import type { SubscriptionTier } from '@/types/user.types';
-
-function ToggleSwitch({
-  label,
-  description,
-  checked,
-  onChange,
-}: {
-  label: string;
-  description?: string;
-  checked: boolean;
-  onChange: (checked: boolean) => void;
-}) {
-  return (
-    <div className="flex items-start justify-between gap-4 py-3">
-      <div>
-        <p className="text-sm font-medium text-slate-warm dark:text-white">{label}</p>
-        {description && <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">{description}</p>}
-      </div>
-      <button
-        type="button"
-        role="switch"
-        aria-checked={checked}
-        onClick={() => onChange(!checked)}
-        className={`relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-400 focus:ring-offset-2 ${
-          checked ? 'bg-teal-500' : 'bg-slate-200 dark:bg-slate-700'
-        }`}
-      >
-        <span
-          className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ${
-            checked ? 'translate-x-5' : 'translate-x-0'
-          }`}
-        />
-      </button>
-    </div>
-  );
-}
-
-const TIER_DETAILS: Record<SubscriptionTier, { name: string; price: string; icon: React.ElementType; features: string[] }> = {
-  free: {
-    name: 'Free',
-    price: '$0/mo',
-    icon: User,
-    features: [
-      '1 lab upload',
-      'Basic supplement info',
-      'Limited analysis',
-    ],
-  },
-  core: {
-    name: 'Core',
-    price: '$19/mo',
-    icon: Zap,
-    features: [
-      'Unlimited lab uploads',
-      'Full wellness plans',
-      'Medication checker',
-      'Trend tracking',
-      'Hormone & hair modules',
-    ],
-  },
-  premium: {
-    name: 'Premium',
-    price: '$39/mo',
-    icon: Crown,
-    features: [
-      'Everything in Core',
-      'Doctor prep documents',
-      'Genetic upload & analysis',
-      'Insurance coverage guide',
-      'Priority AI processing',
-    ],
-  },
-  family: {
-    name: 'Family',
-    price: '$59/mo',
-    icon: Users,
-    features: [
-      'Everything in Premium',
-      'Up to 4 profiles',
-      'Family health dashboard',
-      'Shared wellness goals',
-    ],
-  },
-};
-
-const SETTINGS_TABS = [
-  { id: 'account', label: 'Account', icon: <User className="w-4 h-4" /> },
-  { id: 'notifications', label: 'Notifications', icon: <Bell className="w-4 h-4" /> },
-  { id: 'privacy', label: 'Privacy', icon: <Lock className="w-4 h-4" /> },
-  { id: 'subscription', label: 'Subscription', icon: <CreditCard className="w-4 h-4" /> },
-];
 
 export default function SettingsPage() {
   const { user, profile, updateProfile, signOut } = useAuth();
@@ -133,18 +26,6 @@ export default function SettingsPage() {
   const [weightKg, setWeightKg] = useState(profile?.weight_kg?.toString() || '');
   const [email, setEmail] = useState(user?.email || '');
   const [savingAccount, setSavingAccount] = useState(false);
-
-  // Notification preferences
-  const [emailNotifs, setEmailNotifs] = useState(profile?.notification_preferences?.email ?? true);
-  const [labReminders, setLabReminders] = useState(profile?.notification_preferences?.lab_reminders ?? true);
-  const [suppReminders, setSuppReminders] = useState(profile?.notification_preferences?.supplement_reminders ?? true);
-  const [planUpdates, setPlanUpdates] = useState(profile?.notification_preferences?.plan_updates ?? true);
-  const [savingNotifs, setSavingNotifs] = useState(false);
-
-  // Modals
-  const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [showClearDataModal, setShowClearDataModal] = useState(false);
-  const [deleteConfirm, setDeleteConfirm] = useState('');
 
   const handleSaveAccount = async () => {
     setSavingAccount(true);
@@ -164,61 +45,11 @@ export default function SettingsPage() {
         if (error) throw error;
       }
 
-      addToast({ type: 'success', title: 'Account settings saved' });
+      addToast({ type: 'success', title: 'Settings saved successfully' });
     } catch (err) {
       addToast({ type: 'error', title: 'Failed to save', message: String(err) });
     } finally {
       setSavingAccount(false);
-    }
-  };
-
-  const handleSaveNotifications = async () => {
-    setSavingNotifs(true);
-    try {
-      await updateProfile({
-        notification_preferences: {
-          email: emailNotifs,
-          lab_reminders: labReminders,
-          supplement_reminders: suppReminders,
-          plan_updates: planUpdates,
-        },
-      });
-      addToast({ type: 'success', title: 'Notification preferences saved' });
-    } catch (err) {
-      addToast({ type: 'error', title: 'Failed to save', message: String(err) });
-    } finally {
-      setSavingNotifs(false);
-    }
-  };
-
-  const handleExportData = () => {
-    alert('Data export coming soon! This feature is under development.');
-  };
-
-  const handleDeleteAccount = async () => {
-    if (deleteConfirm !== 'DELETE') return;
-    try {
-      // In production, this would call a server function to fully delete the account
-      addToast({ type: 'info', title: 'Account deletion requested. You will receive a confirmation email.' });
-      setShowDeleteModal(false);
-      await signOut();
-    } catch (err) {
-      addToast({ type: 'error', title: 'Failed to delete account', message: String(err) });
-    }
-  };
-
-  const handleClearHealthData = async () => {
-    if (!user) return;
-    try {
-      await Promise.all([
-        supabase.from('wellness_plans').delete().eq('user_id', user.id),
-        supabase.from('progress_entries').delete().eq('user_id', user.id),
-        supabase.from('doctor_prep_documents').delete().eq('user_id', user.id),
-      ]);
-      addToast({ type: 'success', title: 'Health data cleared' });
-      setShowClearDataModal(false);
-    } catch (err) {
-      addToast({ type: 'error', title: 'Failed to clear data', message: String(err) });
     }
   };
 
@@ -233,388 +64,258 @@ export default function SettingsPage() {
     }
   };
 
-  const currentTier = profile?.subscription_tier || 'free';
+  const initials = [firstName, lastName]
+    .filter(Boolean)
+    .map((n) => n.charAt(0).toUpperCase())
+    .join('') || 'U';
 
   return (
-    <div className="max-w-4xl mx-auto px-4 py-8">
-      <PageHeader title="Settings" />
+    <div className="min-h-screen bg-[#FAF9F5] px-5 pt-6 pb-24 font-['Manrope',sans-serif]">
+      {/* Top Bar */}
+      <div className="flex items-center justify-between">
+        <button
+          onClick={() => window.history.back()}
+          className="w-10 h-10 rounded-full bg-[#F5F3F0] flex items-center justify-center"
+        >
+          <ArrowLeft className="w-5 h-5 text-[#1A3C34]" />
+        </button>
+        <span className="font-['Fraunces',serif] text-lg font-semibold text-[#1A3C34]">
+          CauseHealth.
+        </span>
+        <div className="w-10 h-10 rounded-full bg-[#1A3C34] flex items-center justify-center">
+          <span className="text-white text-sm font-bold">{initials}</span>
+        </div>
+      </div>
 
-      <Tabs tabs={SETTINGS_TABS} defaultTab="account">
-        {(activeTab) => (
-          <motion.div
-            key={activeTab}
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.15 }}
-          >
-            {/* Account Tab */}
-            {activeTab === 'account' && (
-              <div className="space-y-6">
-                <Card>
-                  <h3 className="text-base font-semibold text-slate-warm dark:text-white mb-4">
-                    Profile Information
-                  </h3>
-                  <div className="space-y-4">
-                    <div className="grid gap-4 sm:grid-cols-2">
-                      <Input
-                        label="First Name"
-                        value={firstName}
-                        onChange={(e) => setFirstName(e.target.value)}
-                      />
-                      <Input
-                        label="Last Name"
-                        value={lastName}
-                        onChange={(e) => setLastName(e.target.value)}
-                      />
-                    </div>
-                    <div className="grid gap-4 sm:grid-cols-3">
-                      <Input
-                        label="Date of Birth"
-                        type="date"
-                        value={dob}
-                        onChange={(e) => setDob(e.target.value)}
-                      />
-                      <Select
-                        label="Sex"
-                        value={sex}
-                        onChange={(e) => setSex(e.target.value)}
-                        options={[
-                          { value: 'male', label: 'Male' },
-                          { value: 'female', label: 'Female' },
-                          { value: 'other', label: 'Other' },
-                        ]}
-                        placeholder="Select..."
-                      />
-                    </div>
-                    <div className="grid gap-4 sm:grid-cols-2">
-                      <Input
-                        label="Height (cm)"
-                        type="number"
-                        value={heightCm}
-                        onChange={(e) => setHeightCm(e.target.value)}
-                      />
-                      <Input
-                        label="Weight (kg)"
-                        type="number"
-                        value={weightKg}
-                        onChange={(e) => setWeightKg(e.target.value)}
-                      />
-                    </div>
-                  </div>
-                </Card>
+      {/* Header */}
+      <motion.div
+        initial={{ opacity: 0, y: 12 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="mt-6"
+      >
+        <h1 className="font-['Fraunces',serif] italic text-4xl text-[#1A3C34]">
+          Settings
+        </h1>
+        <p className="text-sm text-[#414844] mt-3 leading-relaxed max-w-sm">
+          Manage your health profile and account preferences.
+        </p>
+      </motion.div>
 
-                <Card>
-                  <h3 className="text-base font-semibold text-slate-warm dark:text-white mb-4">
-                    Account
-                  </h3>
-                  <div className="space-y-4">
-                    <Input
-                      label="Email"
-                      type="email"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      hint={email !== user?.email ? 'A confirmation email will be sent to verify the change.' : undefined}
-                    />
-                    <div>
-                      <Button variant="outline" size="sm" onClick={handleChangePassword}>
-                        Change Password
-                      </Button>
-                      <p className="text-xs text-slate-400 mt-1">
-                        A password reset link will be sent to your email.
-                      </p>
-                    </div>
-                  </div>
-                </Card>
+      {/* PROFILE INFORMATION */}
+      <motion.div
+        initial={{ opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.05 }}
+        className="mt-8"
+      >
+        <div className="flex items-center gap-2 mb-4">
+          <User className="w-4 h-4 text-[#414844]" />
+          <span className="text-[10px] uppercase tracking-[0.2em] font-bold text-[#414844]">
+            Profile Information
+          </span>
+        </div>
 
-                <Card>
-                  <h3 className="text-base font-semibold text-slate-warm dark:text-white mb-4">
-                    Appearance
-                  </h3>
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      {darkMode ? (
-                        <Moon className="w-5 h-5 text-indigo-400" />
-                      ) : (
-                        <Sun className="w-5 h-5 text-amber-500" />
-                      )}
-                      <div>
-                        <p className="text-sm font-medium text-slate-warm dark:text-white">
-                          {darkMode ? 'Dark Mode' : 'Light Mode'}
-                        </p>
-                        <p className="text-xs text-slate-500 dark:text-slate-400">
-                          Toggle between light and dark themes
-                        </p>
-                      </div>
-                    </div>
-                    <button
-                      onClick={toggleDarkMode}
-                      className={`relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-400 focus:ring-offset-2 ${
-                        darkMode ? 'bg-teal-500' : 'bg-slate-200'
-                      }`}
-                    >
-                      <span
-                        className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ${
-                          darkMode ? 'translate-x-5' : 'translate-x-0'
-                        }`}
-                      />
-                    </button>
-                  </div>
-                </Card>
-
-                <Button onClick={handleSaveAccount} loading={savingAccount}>
-                  <Save className="w-4 h-4" />
-                  Save Changes
-                </Button>
-              </div>
-            )}
-
-            {/* Notifications Tab */}
-            {activeTab === 'notifications' && (
-              <div className="space-y-6">
-                <Card>
-                  <h3 className="text-base font-semibold text-slate-warm dark:text-white mb-2">
-                    Notification Preferences
-                  </h3>
-                  <div className="divide-y divide-slate-100 dark:divide-slate-700">
-                    <ToggleSwitch
-                      label="Email Notifications"
-                      description="Receive important updates and reminders via email"
-                      checked={emailNotifs}
-                      onChange={setEmailNotifs}
-                    />
-                    <ToggleSwitch
-                      label="Lab Reminders"
-                      description="Get notified when it's time to retest based on your plan"
-                      checked={labReminders}
-                      onChange={setLabReminders}
-                    />
-                    <ToggleSwitch
-                      label="Supplement Reminders"
-                      description="Daily reminders to take your supplements"
-                      checked={suppReminders}
-                      onChange={setSuppReminders}
-                    />
-                    <ToggleSwitch
-                      label="Wellness Plan Updates"
-                      description="Notify when new research affects your plan recommendations"
-                      checked={planUpdates}
-                      onChange={setPlanUpdates}
-                    />
-                  </div>
-                </Card>
-
-                <Button onClick={handleSaveNotifications} loading={savingNotifs}>
-                  <Save className="w-4 h-4" />
-                  Save Preferences
-                </Button>
-              </div>
-            )}
-
-            {/* Privacy Tab */}
-            {activeTab === 'privacy' && (
-              <div className="space-y-6">
-                <Card>
-                  <h3 className="text-base font-semibold text-slate-warm dark:text-white mb-4">
-                    Your Data
-                  </h3>
-                  <div className="space-y-4">
-                    <div className="flex items-start justify-between gap-4 p-4 rounded-lg bg-slate-50 dark:bg-slate-800/50">
-                      <div>
-                        <p className="text-sm font-medium text-slate-warm dark:text-white">Export Your Data</p>
-                        <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-                          Download a copy of all your health data, lab results, and wellness plans.
-                        </p>
-                      </div>
-                      <Button variant="outline" size="sm" onClick={handleExportData}>
-                        <Download className="w-4 h-4" />
-                        Export
-                      </Button>
-                    </div>
-
-                    <div className="flex items-start justify-between gap-4 p-4 rounded-lg bg-amber-50 dark:bg-amber-900/10">
-                      <div>
-                        <p className="text-sm font-medium text-slate-warm dark:text-white">Clear Health Data</p>
-                        <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-                          Remove all wellness plans, progress entries, and doctor prep documents. Your account and profile will remain.
-                        </p>
-                      </div>
-                      <Button variant="outline" size="sm" onClick={() => setShowClearDataModal(true)}>
-                        <Trash2 className="w-4 h-4" />
-                        Clear
-                      </Button>
-                    </div>
-
-                    <div className="flex items-start justify-between gap-4 p-4 rounded-lg bg-rose-50 dark:bg-rose-900/10">
-                      <div>
-                        <p className="text-sm font-medium text-rose-700 dark:text-rose-400">Delete Account</p>
-                        <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-                          Permanently delete your account and all associated data. This action cannot be undone.
-                        </p>
-                      </div>
-                      <Button variant="danger" size="sm" onClick={() => setShowDeleteModal(true)}>
-                        <Trash2 className="w-4 h-4" />
-                        Delete
-                      </Button>
-                    </div>
-                  </div>
-                </Card>
-
-                <Card>
-                  <h3 className="text-base font-semibold text-slate-warm dark:text-white mb-3">
-                    Privacy Policy
-                  </h3>
-                  <p className="text-sm text-slate-500 dark:text-slate-400">
-                    Your health data is encrypted and stored securely. We never share your personal
-                    health information with third parties. CauseHealth uses your data solely to
-                    generate personalized wellness insights.
-                  </p>
-                  <button className="text-sm text-teal-500 hover:text-teal-600 font-medium mt-2">
-                    Read Full Privacy Policy
-                  </button>
-                </Card>
-              </div>
-            )}
-
-            {/* Subscription Tab */}
-            {activeTab === 'subscription' && (
-              <div className="space-y-6">
-                <Card>
-                  <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-base font-semibold text-slate-warm dark:text-white">
-                      Current Plan
-                    </h3>
-                    <Badge variant={currentTier === 'free' ? 'default' : 'success'} size="md">
-                      {TIER_DETAILS[currentTier].name}
-                    </Badge>
-                  </div>
-                  <p className="text-sm text-slate-500 dark:text-slate-400">
-                    {currentTier === 'free'
-                      ? 'You are on the free plan. Upgrade to unlock more features.'
-                      : `You are on the ${TIER_DETAILS[currentTier].name} plan at ${TIER_DETAILS[currentTier].price}.`}
-                  </p>
-                </Card>
-
-                <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-                  {(Object.entries(TIER_DETAILS) as [SubscriptionTier, typeof TIER_DETAILS[SubscriptionTier]][]).map(
-                    ([tier, details]) => {
-                      const TierIcon = details.icon;
-                      const isCurrent = tier === currentTier;
-
-                      return (
-                        <Card
-                          key={tier}
-                          className={`relative ${
-                            isCurrent ? 'ring-2 ring-teal-500' : ''
-                          } ${tier === 'premium' ? 'border-teal-200 dark:border-teal-800' : ''}`}
-                        >
-                          {tier === 'premium' && (
-                            <div className="absolute -top-2.5 left-1/2 -translate-x-1/2">
-                              <Badge variant="success" size="sm">Most Popular</Badge>
-                            </div>
-                          )}
-                          <div className="text-center">
-                            <div className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-teal-50 dark:bg-teal-900/30 mb-3">
-                              <TierIcon className="w-5 h-5 text-teal-500" />
-                            </div>
-                            <h4 className="text-sm font-semibold text-slate-warm dark:text-white">
-                              {details.name}
-                            </h4>
-                            <p className="text-lg font-display font-bold text-teal-600 dark:text-teal-400 mt-1">
-                              {details.price}
-                            </p>
-                          </div>
-                          <ul className="mt-4 space-y-2">
-                            {details.features.map((feature, i) => (
-                              <li key={i} className="flex items-start gap-2 text-xs text-slate-600 dark:text-slate-300">
-                                <Check className="w-3.5 h-3.5 text-teal-500 flex-shrink-0 mt-0.5" />
-                                {feature}
-                              </li>
-                            ))}
-                          </ul>
-                          <div className="mt-4">
-                            {isCurrent ? (
-                              <Button variant="secondary" size="sm" className="w-full" disabled>
-                                Current Plan
-                              </Button>
-                            ) : (
-                              <Button
-                                variant={tier === 'premium' ? 'primary' : 'outline'}
-                                size="sm"
-                                className="w-full"
-                                onClick={() =>
-                                  addToast({
-                                    type: 'info',
-                                    title: 'Payment integration coming soon!',
-                                  })
-                                }
-                              >
-                                {tier === 'free' ? 'Downgrade' : 'Upgrade'}
-                              </Button>
-                            )}
-                          </div>
-                        </Card>
-                      );
-                    }
-                  )}
-                </div>
-              </div>
-            )}
-          </motion.div>
-        )}
-      </Tabs>
-
-      {/* Delete Account Modal */}
-      <Modal open={showDeleteModal} onClose={() => setShowDeleteModal(false)} title="Delete Account" size="sm">
-        <div className="space-y-4">
-          <div className="flex items-start gap-3 p-3 rounded-lg bg-rose-50 dark:bg-rose-900/20">
-            <AlertTriangle className="w-5 h-5 text-rose-500 flex-shrink-0 mt-0.5" />
-            <p className="text-sm text-rose-700 dark:text-rose-300">
-              This will permanently delete your account and all associated data including lab results,
-              wellness plans, and progress history. This action cannot be undone.
-            </p>
+        <div className="bg-[#F5F3F0] rounded-[32px] p-8 space-y-5">
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="text-[10px] uppercase tracking-[0.2em] font-bold text-[#414844] mb-2 block">
+                First Name
+              </label>
+              <input
+                type="text"
+                value={firstName}
+                onChange={(e) => setFirstName(e.target.value)}
+                placeholder="First name"
+                className="w-full bg-white rounded-xl border border-[#C1C8C2]/20 px-5 py-4 text-[#1A3C34] text-sm outline-none focus:ring-2 focus:ring-[#1A3C34]/20 placeholder:text-[#414844]/40"
+              />
+            </div>
+            <div>
+              <label className="text-[10px] uppercase tracking-[0.2em] font-bold text-[#414844] mb-2 block">
+                Last Name
+              </label>
+              <input
+                type="text"
+                value={lastName}
+                onChange={(e) => setLastName(e.target.value)}
+                placeholder="Last name"
+                className="w-full bg-white rounded-xl border border-[#C1C8C2]/20 px-5 py-4 text-[#1A3C34] text-sm outline-none focus:ring-2 focus:ring-[#1A3C34]/20 placeholder:text-[#414844]/40"
+              />
+            </div>
           </div>
-          <Input
-            label='Type "DELETE" to confirm'
-            value={deleteConfirm}
-            onChange={(e) => setDeleteConfirm(e.target.value)}
-            placeholder="DELETE"
-          />
-          <div className="flex gap-3 justify-end">
-            <Button variant="ghost" size="sm" onClick={() => setShowDeleteModal(false)}>
-              Cancel
-            </Button>
-            <Button
-              variant="danger"
-              size="sm"
-              disabled={deleteConfirm !== 'DELETE'}
-              onClick={handleDeleteAccount}
+
+          <div>
+            <label className="text-[10px] uppercase tracking-[0.2em] font-bold text-[#414844] mb-2 block">
+              Date of Birth
+            </label>
+            <input
+              type="date"
+              value={dob}
+              onChange={(e) => setDob(e.target.value)}
+              className="w-full bg-white rounded-xl border border-[#C1C8C2]/20 px-5 py-4 text-[#1A3C34] text-sm outline-none focus:ring-2 focus:ring-[#1A3C34]/20"
+            />
+          </div>
+
+          <div>
+            <label className="text-[10px] uppercase tracking-[0.2em] font-bold text-[#414844] mb-2 block">
+              Sex
+            </label>
+            <select
+              value={sex}
+              onChange={(e) => setSex(e.target.value)}
+              className="w-full bg-white rounded-xl border border-[#C1C8C2]/20 px-5 py-4 text-[#1A3C34] text-sm outline-none focus:ring-2 focus:ring-[#1A3C34]/20 appearance-none"
             >
-              Delete Account
-            </Button>
+              <option value="">Select...</option>
+              <option value="male">Male</option>
+              <option value="female">Female</option>
+              <option value="other">Other</option>
+            </select>
           </div>
-        </div>
-      </Modal>
 
-      {/* Clear Data Modal */}
-      <Modal open={showClearDataModal} onClose={() => setShowClearDataModal(false)} title="Clear Health Data" size="sm">
-        <div className="space-y-4">
-          <div className="flex items-start gap-3 p-3 rounded-lg bg-amber-50 dark:bg-amber-900/20">
-            <AlertTriangle className="w-5 h-5 text-amber-500 flex-shrink-0 mt-0.5" />
-            <p className="text-sm text-amber-700 dark:text-amber-300">
-              This will remove all wellness plans, progress entries, and doctor prep documents.
-              Your account, profile, and lab results will remain. This cannot be undone.
-            </p>
-          </div>
-          <div className="flex gap-3 justify-end">
-            <Button variant="ghost" size="sm" onClick={() => setShowClearDataModal(false)}>
-              Cancel
-            </Button>
-            <Button variant="danger" size="sm" onClick={handleClearHealthData}>
-              Clear Data
-            </Button>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="text-[10px] uppercase tracking-[0.2em] font-bold text-[#414844] mb-2 block">
+                Height (cm)
+              </label>
+              <input
+                type="number"
+                value={heightCm}
+                onChange={(e) => setHeightCm(e.target.value)}
+                placeholder="175"
+                className="w-full bg-white rounded-xl border border-[#C1C8C2]/20 px-5 py-4 text-[#1A3C34] text-sm outline-none focus:ring-2 focus:ring-[#1A3C34]/20 placeholder:text-[#414844]/40"
+              />
+            </div>
+            <div>
+              <label className="text-[10px] uppercase tracking-[0.2em] font-bold text-[#414844] mb-2 block">
+                Weight (kg)
+              </label>
+              <input
+                type="number"
+                value={weightKg}
+                onChange={(e) => setWeightKg(e.target.value)}
+                placeholder="70"
+                className="w-full bg-white rounded-xl border border-[#C1C8C2]/20 px-5 py-4 text-[#1A3C34] text-sm outline-none focus:ring-2 focus:ring-[#1A3C34]/20 placeholder:text-[#414844]/40"
+              />
+            </div>
           </div>
         </div>
-      </Modal>
+      </motion.div>
+
+      {/* ACCOUNT */}
+      <motion.div
+        initial={{ opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.1 }}
+        className="mt-8"
+      >
+        <div className="flex items-center gap-2 mb-4">
+          <Shield className="w-4 h-4 text-[#414844]" />
+          <span className="text-[10px] uppercase tracking-[0.2em] font-bold text-[#414844]">
+            Account
+          </span>
+        </div>
+
+        <div className="bg-[#F5F3F0] rounded-[32px] p-8 space-y-5">
+          <div>
+            <label className="text-[10px] uppercase tracking-[0.2em] font-bold text-[#414844] mb-2 block">
+              Email Address
+            </label>
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="w-full bg-white rounded-xl border border-[#C1C8C2]/20 px-5 py-4 text-[#1A3C34] text-sm outline-none focus:ring-2 focus:ring-[#1A3C34]/20"
+            />
+            {email !== user?.email && (
+              <p className="text-xs text-[#414844]/60 mt-2">
+                A confirmation email will be sent to verify the change.
+              </p>
+            )}
+          </div>
+
+          <button
+            onClick={handleChangePassword}
+            className="flex items-center justify-between w-full py-3"
+          >
+            <span className="text-sm text-[#1A3C34] font-medium">Change Password</span>
+            <ChevronRight className="w-4 h-4 text-[#414844]/40" />
+          </button>
+          <p className="text-xs text-[#414844]/60 -mt-3">
+            A password reset link will be sent to your email.
+          </p>
+        </div>
+      </motion.div>
+
+      {/* APPEARANCE */}
+      <motion.div
+        initial={{ opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.15 }}
+        className="mt-8"
+      >
+        <div className="flex items-center gap-2 mb-4">
+          <Palette className="w-4 h-4 text-[#414844]" />
+          <span className="text-[10px] uppercase tracking-[0.2em] font-bold text-[#414844]">
+            Appearance
+          </span>
+        </div>
+
+        <div className="bg-[#F5F3F0] rounded-[32px] p-8">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              {darkMode ? (
+                <Moon className="w-5 h-5 text-[#1A3C34]" />
+              ) : (
+                <Sun className="w-5 h-5 text-[#1A3C34]" />
+              )}
+              <div>
+                <p className="text-sm font-medium text-[#1A3C34]">
+                  {darkMode ? 'Dark Mode' : 'Light Mode'}
+                </p>
+                <p className="text-xs text-[#414844]/60 mt-0.5">
+                  Toggle between light and dark themes
+                </p>
+              </div>
+            </div>
+            <button
+              onClick={toggleDarkMode}
+              className={`relative inline-flex h-7 w-12 flex-shrink-0 cursor-pointer rounded-full transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-[#1A3C34]/20 focus:ring-offset-2 ${
+                darkMode ? 'bg-[#1A3C34]' : 'bg-[#C1C8C2]/40'
+              }`}
+            >
+              <span
+                className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 mt-1 ${
+                  darkMode ? 'translate-x-6 ml-0.5' : 'translate-x-1'
+                }`}
+              />
+            </button>
+          </div>
+        </div>
+      </motion.div>
+
+      {/* Actions */}
+      <motion.div
+        initial={{ opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.2 }}
+        className="mt-10 space-y-4"
+      >
+        <button
+          onClick={handleSaveAccount}
+          disabled={savingAccount}
+          className="w-full bg-[#1A3C34] text-white rounded-xl py-4 uppercase tracking-[0.15em] font-bold text-sm disabled:opacity-50"
+        >
+          {savingAccount ? 'Saving...' : 'Save Changes'}
+        </button>
+
+        <button
+          onClick={signOut}
+          className="w-full text-center py-3"
+        >
+          <span className="text-[#BA1A1A] uppercase tracking-[0.15em] font-bold text-sm">
+            Sign Out
+          </span>
+        </button>
+      </motion.div>
     </div>
   );
 }
