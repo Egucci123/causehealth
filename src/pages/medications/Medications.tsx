@@ -709,26 +709,19 @@ function AddMedicationModal({
   depletionPreview,
   editingMed,
 }: AddModalProps) {
+  if (!open) return null;
+
   return (
-    <AnimatePresence>
-      {open && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          className="fixed inset-0 z-50 flex items-end justify-center bg-black/40"
-          onClick={onClose}
-        >
-          <motion.div
-            initial={{ y: '100%' }}
-            animate={{ y: 0 }}
-            exit={{ y: '100%' }}
-            transition={{ type: 'spring', damping: 28, stiffness: 300 }}
-            onClick={(e) => e.stopPropagation()}
-            className="w-full max-w-lg bg-white rounded-t-3xl p-6 pb-28 max-h-[85vh] overflow-y-auto font-['Manrope',sans-serif]"
-          >
-            {/* Drag handle */}
-            <div className="w-10 h-1 rounded-full bg-[#414844]/20 mx-auto mb-5" />
+    <div
+      className="fixed inset-0 z-[100] flex items-end justify-center bg-black/40"
+      onClick={onClose}
+    >
+      <div
+        onClick={(e) => e.stopPropagation()}
+        className="w-full max-w-lg bg-white rounded-t-3xl p-6 pb-28 max-h-[85vh] overflow-y-auto font-['Manrope',sans-serif]"
+      >
+        {/* Drag handle */}
+        <div className="w-10 h-1 rounded-full bg-[#414844]/20 mx-auto mb-5" />
 
             <h2 className="font-['Fraunces',serif] text-xl font-semibold text-[#012D1D] mb-5">
               {editingMed ? 'Edit Medication' : 'Add Medication'}
@@ -867,9 +860,7 @@ function AddMedicationModal({
                 </button>
               </div>
             </div>
-          </motion.div>
-        </motion.div>
-      )}
-    </AnimatePresence>
+      </div>
+    </div>
   );
 }
