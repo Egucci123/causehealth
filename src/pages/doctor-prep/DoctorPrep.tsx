@@ -108,8 +108,9 @@ export default function DoctorPrepPage() {
         setEditableMeds(typed.medication_discussion_points || []);
         setEditableReferrals(typed.specialist_referrals || []);
       }
-    } catch {
-      // No existing document
+    } catch (err) {
+      // No existing document yet is expected; log unexpected errors
+      console.error('Failed to load doctor prep document:', err);
     } finally {
       setLoading(false);
     }

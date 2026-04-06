@@ -114,15 +114,18 @@ export default function Step7Complete(_props: StepProps) {
 
   const diagnoses = healthProfile?.diagnoses || [];
   const goals = profile?.primary_goals || [];
+  const symptoms: string[] = [];
 
-  const recommendation = getFirstRecommendation(diagnoses, goals, goals);
+  const recommendation = getFirstRecommendation(diagnoses, goals, symptoms);
 
   useEffect(() => {
     async function markComplete() {
       try {
         await updateProfile({ onboarding_completed: true });
         setCompleted(true);
-      } catch {
+      } catch (err) {
+        console.error('Failed to mark onboarding as complete:', err);
+        // Still allow user to proceed even if the flag fails to save
         setCompleted(true);
       }
     }

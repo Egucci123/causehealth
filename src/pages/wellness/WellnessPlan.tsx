@@ -171,8 +171,9 @@ export default function WellnessPlanPage() {
         .single();
 
       if (data) setPlan(data as WellnessPlan);
-    } catch {
-      // No active plan
+    } catch (err) {
+      // No active plan yet is expected; log unexpected errors
+      console.error('Failed to load wellness plan:', err);
     } finally {
       setLoading(false);
     }

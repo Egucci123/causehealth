@@ -108,8 +108,9 @@ export default function Step5Lifestyle({ onNext }: StepProps) {
         environmental_exposures: exposures.filter((e) => e !== 'None'),
       });
       onNext();
-    } catch {
-      // Network error handled silently
+    } catch (err) {
+      console.error('Failed to save lifestyle data:', err);
+      alert('Failed to save. Please try again.');
     } finally {
       setSaving(false);
     }

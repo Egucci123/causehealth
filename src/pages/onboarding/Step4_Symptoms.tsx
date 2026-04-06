@@ -49,6 +49,7 @@ function severityColor(severity: number): string {
 export default function Step4Symptoms({ onNext }: StepProps) {
   const { user } = useAuth();
   const [saving, setSaving] = useState(false);
+  const [error, setError] = useState('');
   const [selected, setSelected] = useState<Record<string, SelectedSymptom>>({});
 
   function toggleSymptom(symptom: string) {
@@ -77,6 +78,7 @@ export default function Step4Symptoms({ onNext }: StepProps) {
   async function handleSave() {
     if (!user) return;
     setSaving(true);
+    setError('');
     try {
       const symptomsToInsert = Object.values(selected).map((s) => ({
         user_id: user.id,
@@ -87,15 +89,16 @@ export default function Step4Symptoms({ onNext }: StepProps) {
       }));
 
       if (symptomsToInsert.length > 0) {
-        const { error } = await supabase
+        const { error: insertError } = await supabase
           .from('symptoms')
           .insert(symptomsToInsert);
-        if (error) throw error;
+        if (insertError) throw insertError;
       }
 
       onNext();
-    } catch {
-      // Network error handled silently
+    } catch (err) {
+      console.error('Failed to save symptoms:', err);
+      setError('Failed to save symptoms. Please try again.');
     } finally {
       setSaving(false);
     }
@@ -122,6 +125,12 @@ export default function Step4Symptoms({ onNext }: StepProps) {
           to identify potential root causes and track improvements.
         </p>
       </div>
+
+      {error && (
+        <div className="p-3 bg-rose-50 border border-rose-200 rounded-2xl text-sm text-rose-600">
+          {error}
+        </div>
+      )}
 
       {/* Symptom categories */}
       {Object.entries(SYMPTOM_CATEGORIES).map(([category, symptoms]) => (

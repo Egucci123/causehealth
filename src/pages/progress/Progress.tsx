@@ -196,8 +196,9 @@ export default function ProgressPage() {
           }))
         );
       }
-    } catch {
-      // Data might not exist yet
+    } catch (err) {
+      // Data might not exist yet; log unexpected errors
+      console.error('Failed to load progress data:', err);
     } finally {
       setLoading(false);
     }

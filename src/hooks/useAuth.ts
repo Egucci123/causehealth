@@ -40,8 +40,9 @@ export function useAuth() {
 
       if (profileRes.data) setProfile(profileRes.data as Profile);
       if (healthRes.data) setHealthProfile(healthRes.data as HealthProfile);
-    } catch {
-      // Profile might not exist yet
+    } catch (err) {
+      // Profile might not exist yet (e.g. during onboarding)
+      console.error('Failed to load profile:', err);
     } finally {
       setLoading(false);
     }
@@ -52,11 +53,15 @@ export function useAuth() {
     if (error) throw error;
 
     if (data.user) {
-      await supabase.from('profiles').insert({
+      const { error: profileError } = await supabase.from('profiles').insert({
         id: data.user.id,
         first_name: firstName,
         last_name: lastName,
       });
+      if (profileError) {
+        console.error('Failed to create profile:', profileError);
+        throw profileError;
+      }
     }
     return data;
   }

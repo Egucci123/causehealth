@@ -11,6 +11,7 @@ interface StepProps {
 export default function Step1Demographics({ onNext }: StepProps) {
   const { profile, updateProfile } = useAuth();
   const [saving, setSaving] = useState(false);
+  const [error, setError] = useState('');
   const [form, setForm] = useState({
     first_name: profile?.first_name || '',
     last_name: profile?.last_name || '',
@@ -26,6 +27,7 @@ export default function Step1Demographics({ onNext }: StepProps) {
 
   async function handleSave() {
     setSaving(true);
+    setError('');
     try {
       await updateProfile({
         first_name: form.first_name || null,
@@ -36,8 +38,9 @@ export default function Step1Demographics({ onNext }: StepProps) {
         weight_kg: form.weight_kg ? Number(form.weight_kg) : null,
       });
       onNext();
-    } catch {
-      // Error handled silently
+    } catch (err) {
+      console.error('Failed to save demographics:', err);
+      setError('Failed to save your information. Please try again.');
     } finally {
       setSaving(false);
     }
@@ -73,6 +76,12 @@ export default function Step1Demographics({ onNext }: StepProps) {
           information with third parties. You can delete your data at any time.
         </p>
       </div>
+
+      {error && (
+        <div className="p-3 bg-rose-50 border border-rose-200 rounded-2xl text-sm text-rose-600">
+          {error}
+        </div>
+      )}
 
       {/* Form */}
       <div className="bg-white rounded-3xl shadow-[0_8px_24px_rgba(14,55,39,0.05)] p-5 space-y-5">

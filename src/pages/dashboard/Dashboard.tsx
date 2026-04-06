@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Upload, ArrowRight, AlertTriangle, Pill, TestTube2 } from 'lucide-react';
+import { Upload, ArrowRight, AlertTriangle, Pill, TestTube2, Activity, Stethoscope, Shield, TrendingUp } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/lib/supabase';
 import { STANDARD_DISCLAIMER } from '@/lib/safety';
@@ -232,6 +232,29 @@ export default function Dashboard() {
           </Link>
         </section>
       )}
+
+      {/* Quick Actions */}
+      <section className="mb-6">
+        <h3 className="font-display text-xl text-[#012D1D] mb-4">Your Toolkit</h3>
+        <div className="grid grid-cols-2 gap-3">
+          {[
+            { to: '/app/wellness', icon: Activity, label: 'Wellness Plan', desc: 'AI-generated protocol' },
+            { to: '/app/doctor-prep', icon: Stethoscope, label: 'Doctor Prep', desc: 'ICD-10 documents' },
+            { to: '/app/symptoms', icon: TrendingUp, label: 'Symptoms', desc: 'Root cause mapper' },
+            { to: '/app/insurance', icon: Shield, label: 'Insurance', desc: 'Coverage guide' },
+          ].map((item) => (
+            <Link
+              key={item.to}
+              to={item.to}
+              className="bg-white rounded-xl p-4 shadow-sm hover:shadow-md transition-shadow"
+            >
+              <item.icon className="w-5 h-5 text-[#1B4332] mb-2" />
+              <p className="text-sm font-semibold text-[#012D1D]">{item.label}</p>
+              <p className="text-[10px] text-[#414844]/60">{item.desc}</p>
+            </Link>
+          ))}
+        </div>
+      </section>
 
       {/* Upload CTA — if no labs */}
       {labValues.length === 0 && (

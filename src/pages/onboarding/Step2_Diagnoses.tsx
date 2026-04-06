@@ -105,8 +105,9 @@ export default function Step2Diagnoses({ onNext }: StepProps) {
         genetic_testing_done: geneticTesting,
       });
       onNext();
-    } catch {
-      // Network error handled silently
+    } catch (err) {
+      console.error('Failed to save diagnoses:', err);
+      alert('Failed to save. Please try again.');
     } finally {
       setSaving(false);
     }

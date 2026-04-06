@@ -205,22 +205,34 @@ export default function Symptoms() {
     if (!user || !formSymptom.trim()) return;
     setSaving(true);
 
-    await supabase.from('symptoms').insert({
-      user_id: user.id,
-      symptom: formSymptom.trim(),
-      severity: formSeverity,
-      duration: formDuration || null,
-      notes: formNotes.trim() || null,
-    });
+    try {
+      const { error } = await supabase.from('symptoms').insert({
+        user_id: user.id,
+        symptom: formSymptom.trim(),
+        severity: formSeverity,
+        duration: formDuration || null,
+        notes: formNotes.trim() || null,
+      });
+      if (error) throw error;
 
-    await loadSymptoms();
-    setSaving(false);
-    setShowAddModal(false);
-    resetForm();
+      await loadSymptoms();
+      setShowAddModal(false);
+      resetForm();
+    } catch (err) {
+      console.error('Failed to save symptom:', err);
+      alert('Failed to save symptom. Please try again.');
+    } finally {
+      setSaving(false);
+    }
   }
 
   async function handleRemove(id: string) {
-    await supabase.from('symptoms').delete().eq('id', id);
+    const { error } = await supabase.from('symptoms').delete().eq('id', id);
+    if (error) {
+      console.error('Failed to remove symptom:', error);
+      alert('Failed to remove symptom. Please try again.');
+      return;
+    }
     setSymptoms((prev) => prev.filter((s) => s.id !== id));
   }
 
@@ -290,7 +302,7 @@ export default function Symptoms() {
       .slice(0, 5);
 
     return { topCauses, topTests };
-  }, [symptoms]);
+  }, [symptoms, resolvedSymptoms]);
 
   return (
     <div className="max-w-4xl mx-auto">

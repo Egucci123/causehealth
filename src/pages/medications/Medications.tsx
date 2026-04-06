@@ -163,27 +163,40 @@ export default function Medications() {
   async function handleSave() {
     if (!user || !formName.trim()) return;
     setSaving(true);
-    const payload = {
-      user_id: user.id,
-      name: formName.trim(),
-      dose: formDose.trim() || null,
-      frequency: formFrequency || null,
-      prescribing_condition: formCondition.trim() || null,
-      is_active: true,
-    };
-    if (editingMed) {
-      await supabase.from('medications').update(payload).eq('id', editingMed.id);
-    } else {
-      await supabase.from('medications').insert(payload);
+    try {
+      const payload = {
+        user_id: user.id,
+        name: formName.trim(),
+        dose: formDose.trim() || null,
+        frequency: formFrequency || null,
+        prescribing_condition: formCondition.trim() || null,
+        is_active: true,
+      };
+      if (editingMed) {
+        const { error } = await supabase.from('medications').update(payload).eq('id', editingMed.id);
+        if (error) throw error;
+      } else {
+        const { error } = await supabase.from('medications').insert(payload);
+        if (error) throw error;
+      }
+      await loadMedications();
+      setShowAddModal(false);
+      resetForm();
+    } catch (err) {
+      console.error('Failed to save medication:', err);
+      alert('Failed to save medication. Please try again.');
+    } finally {
+      setSaving(false);
     }
-    await loadMedications();
-    setSaving(false);
-    setShowAddModal(false);
-    resetForm();
   }
 
   async function handleRemove(id: string) {
-    await supabase.from('medications').update({ is_active: false }).eq('id', id);
+    const { error } = await supabase.from('medications').update({ is_active: false }).eq('id', id);
+    if (error) {
+      console.error('Failed to remove medication:', error);
+      alert('Failed to remove medication. Please try again.');
+      return;
+    }
     setMedications((prev) => prev.filter((m) => m.id !== id));
   }
 
