@@ -1,0 +1,132 @@
+@import "tailwindcss";
+
+@theme {
+  /* Primary: Deep Forest */
+  --color-primary: #012D1D;
+  --color-primary-container: #1B4332;
+  --color-primary-fixed: #C1ECD4;
+  --color-primary-fixed-dim: #A5D0B9;
+  --color-on-primary: #FFFFFF;
+  --color-on-primary-container: #86AF99;
+  --color-on-primary-fixed: #002114;
+  --color-on-primary-fixed-variant: #274E3D;
+
+  /* Secondary */
+  --color-secondary: #526259;
+  --color-secondary-container: #D5E7DB;
+  --color-secondary-fixed: #D5E7DB;
+  --color-secondary-fixed-dim: #B9CBBF;
+  --color-on-secondary: #FFFFFF;
+  --color-on-secondary-container: #58685F;
+
+  /* Surface system — warm paper tones */
+  --color-surface: #FBF9F6;
+  --color-surface-container-lowest: #FFFFFF;
+  --color-surface-container-low: #F5F3F0;
+  --color-surface-container: #EFEEEB;
+  --color-surface-container-high: #EAE8E5;
+  --color-surface-container-highest: #E4E2DF;
+  --color-surface-dim: #DBDAD7;
+  --color-surface-variant: #E4E2DF;
+  --color-on-surface: #1B1C1A;
+  --color-on-surface-variant: #414844;
+
+  /* Status */
+  --color-error: #BA1A1A;
+  --color-error-container: #FFDAD6;
+  --color-on-error: #FFFFFF;
+  --color-on-error-container: #93000A;
+  --color-success: #10B981;
+  --color-warning: #F59E0B;
+  --color-danger: #BA1A1A;
+  --color-accent: #F59E0B;
+
+  /* Tertiary */
+  --color-tertiary: #401B1B;
+  --color-tertiary-container: #5A302F;
+
+  /* Inverse */
+  --color-inverse-surface: #30312F;
+  --color-inverse-on-surface: #F2F0ED;
+  --color-inverse-primary: #A5D0B9;
+
+  /* Outline */
+  --color-outline: #717973;
+  --color-outline-variant: #C1C8C2;
+
+  /* Surface tint */
+  --color-surface-tint: #3F6653;
+
+  /* Legacy aliases */
+  --color-teal-500: #1B4332;
+  --color-teal-400: #3F665C;
+  --color-teal-50: #D5E7DB;
+  --color-teal-100: #EAE8E5;
+  --color-teal-600: #012D1D;
+  --color-teal-700: #012D1D;
+  --color-teal-900: #1B1C1A;
+  --color-slate-warm: #1B1C1A;
+  --color-rose-500: #BA1A1A;
+  --color-bg-primary: #FBF9F6;
+  --color-bg-card: #FFFFFF;
+  --color-bg-dark: #012D1D;
+  --color-bg-dark-card: #1B4332;
+
+  /* Typography — keeping Fraunces as requested */
+  --font-display: 'Fraunces', serif;
+  --font-body: 'Manrope', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+
+  /* Shadows: Ambient forest — subtle, not heavy */
+  --shadow-sm: 0 2px 8px rgba(27, 28, 26, 0.03);
+  --shadow-md: 0 4px 16px rgba(27, 28, 26, 0.04);
+  --shadow-lg: 0 8px 40px rgba(27, 28, 26, 0.06);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  font-family: var(--font-body);
+  background-color: var(--color-surface);
+  color: var(--color-on-surface);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  min-height: 100vh;
+}
+
+#root {
+  min-height: 100vh;
+}
+
+.dark {
+  background-color: var(--color-bg-dark);
+  color: var(--color-inverse-on-surface);
+}
+
+.hide-scrollbar::-webkit-scrollbar { display: none; }
+.hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: var(--color-outline-variant);
+  border-radius: 3px;
+}
+
+.glass {
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+}
