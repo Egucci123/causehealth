@@ -41,7 +41,19 @@
       "Bash(cp /tmp/stitch17/screen.png \"C:/Users/egut/OneDrive/Documents/cause health/stitch17.png\")",
       "Bash(cp /tmp/stitch17/code.html \"C:/Users/egut/OneDrive/Documents/cause health/code17.html\")",
       "Bash(cp /tmp/stitch17/DESIGN.md \"C:/Users/egut/OneDrive/Documents/cause health/design17.md\")",
-      "Bash(grep -ri \"boutique\\\\|ritual\\\\|journal\\\\|supplement.*product\\\\|buy.*supplement\\\\|vitality\\\\|nootropic\\\\|sleep.*quality\\\\|hrv\\\\|recovery\\\\|movement.*track\\\\|step.*count\\\\|calorie\" 'C:/Users/egut/OneDrive/Documents/cause health/src' --include=*.tsx)"
+      "Bash(grep -ri \"boutique\\\\|ritual\\\\|journal\\\\|supplement.*product\\\\|buy.*supplement\\\\|vitality\\\\|nootropic\\\\|sleep.*quality\\\\|hrv\\\\|recovery\\\\|movement.*track\\\\|step.*count\\\\|calorie\" 'C:/Users/egut/OneDrive/Documents/cause health/src' --include=*.tsx)",
+      "Bash(gh repo:*)",
+      "Bash(where git:*)",
+      "Bash(git --version)",
+      "Bash(for i:*)",
+      "Bash(do)",
+      "Bash(mkdir -p /tmp/stitch$i)",
+      "Bash(unzip -o \"stitch \\($i\\).zip\" -d /tmp/stitch$i)",
+      "Bash(cp /tmp/stitch$i/screen.png \"C:/Users/egut/OneDrive/Documents/cause health/stitch$i.png\")",
+      "Bash(do cp:*)",
+      "Bash(done)",
+      "Bash(start \"\" \"C:/Users/egut/OneDrive/Documents/cause health/.env\")",
+      "Bash(ipconfig)"
     ]
   }
 }
