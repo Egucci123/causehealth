@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { CheckCircle2, Upload, LayoutDashboard, Sparkles } from 'lucide-react';
+import { Check, Sparkles } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 
 interface StepProps {
@@ -18,7 +18,7 @@ function getFirstRecommendation(
     diagnoses.some((d) =>
       ['high cholesterol', 'hyperlipidemia'].includes(d.toLowerCase())
     ) ||
-    goals.includes('Cardiovascular health')
+    goals.includes('Cardiovascular Health')
   ) {
     return {
       title: 'Consider CoQ10 Supplementation',
@@ -28,7 +28,7 @@ function getFirstRecommendation(
   }
 
   if (
-    goals.includes('Improve energy') ||
+    goals.includes('Improve Energy') ||
     diagnoses.some((d) =>
       ['hypothyroidism', "hashimoto's"].includes(d.toLowerCase())
     )
@@ -41,7 +41,7 @@ function getFirstRecommendation(
   }
 
   if (
-    goals.includes('Fix hair loss') ||
+    goals.includes('Fix Hair Loss') ||
     symptoms.includes('Hair Loss') ||
     symptoms.includes('Thinning Hair')
   ) {
@@ -53,8 +53,8 @@ function getFirstRecommendation(
   }
 
   if (
-    goals.includes('Better digestion') ||
-    goals.includes('Autoimmune management') ||
+    goals.includes('Better Digestion') ||
+    goals.includes('Autoimmune Management') ||
     diagnoses.some((d) =>
       ['ulcerative colitis', "crohn's disease", 'ibs', 'celiac disease'].includes(
         d.toLowerCase()
@@ -68,7 +68,7 @@ function getFirstRecommendation(
     };
   }
 
-  if (goals.includes('Improve mood')) {
+  if (goals.includes('Improve Mood')) {
     return {
       title: 'Consider a Methylation Panel',
       description:
@@ -81,30 +81,6 @@ function getFirstRecommendation(
     description:
       'Our analysis engine works best with recent lab results. Upload a CBC, CMP, or thyroid panel to get personalized insights right away.',
   };
-}
-
-function ConfettiParticle({ delay, x }: { delay: number; x: number }) {
-  const colors = ['#1B4332', '#3F665C', '#BEE8DC', '#A6CFC3', '#C1ECD4'];
-  const color = colors[Math.floor(Math.random() * colors.length)];
-  return (
-    <motion.div
-      className="absolute w-2 h-2 rounded-full"
-      style={{ backgroundColor: color, left: `${x}%`, top: '50%' }}
-      initial={{ y: 0, opacity: 1, scale: 1 }}
-      animate={{
-        y: [0, -80 - Math.random() * 60],
-        x: [(Math.random() - 0.5) * 100],
-        opacity: [1, 1, 0],
-        scale: [1, 1.2, 0.6],
-        rotate: [0, Math.random() * 360],
-      }}
-      transition={{
-        duration: 1.2,
-        delay,
-        ease: 'easeOut',
-      }}
-    />
-  );
 }
 
 export default function Step7Complete(_props: StepProps) {
@@ -125,7 +101,6 @@ export default function Step7Complete(_props: StepProps) {
         setCompleted(true);
       } catch (err) {
         console.error('Failed to mark onboarding as complete:', err);
-        // Still allow user to proceed even if the flag fails to save
         setCompleted(true);
       }
     }
@@ -133,78 +108,79 @@ export default function Step7Complete(_props: StepProps) {
   }, []);
 
   return (
-    <div className="space-y-8 pb-24 font-['Manrope',sans-serif]">
-      {/* Celebration area */}
-      <div className="text-center space-y-4 relative overflow-hidden py-8">
-        {/* Confetti particles */}
-        <div className="relative h-0">
-          {Array.from({ length: 20 }).map((_, i) => (
-            <ConfettiParticle
-              key={i}
-              delay={0.3 + i * 0.05}
-              x={10 + Math.random() * 80}
-            />
-          ))}
-        </div>
-
+    <div className="space-y-8 font-['DM_Sans',sans-serif]">
+      {/* Pulse checkmark animation */}
+      <div className="text-center space-y-6 py-8">
         <motion.div
           initial={{ scale: 0, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           transition={{ type: 'spring', stiffness: 200, damping: 15, delay: 0.2 }}
-          className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-[#BEE8DC] text-[#3F665C]"
+          className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-[#1F403D]/20 relative"
         >
-          <CheckCircle2 className="w-10 h-10" />
+          {/* Pulse ring */}
+          <motion.div
+            className="absolute inset-0 rounded-full border-2 border-[#1F403D]/40"
+            initial={{ scale: 1, opacity: 1 }}
+            animate={{ scale: 1.6, opacity: 0 }}
+            transition={{ duration: 1.5, repeat: Infinity, repeatDelay: 0.5 }}
+          />
+          <motion.div
+            className="absolute inset-0 rounded-full border-2 border-[#1F403D]/20"
+            initial={{ scale: 1, opacity: 1 }}
+            animate={{ scale: 2, opacity: 0 }}
+            transition={{ duration: 1.5, delay: 0.3, repeat: Infinity, repeatDelay: 0.5 }}
+          />
+          <Check className="w-10 h-10 text-[#1F403D]" />
         </motion.div>
 
         <motion.h1
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.4 }}
-          className="font-['Fraunces',serif] text-3xl font-semibold text-[#012D1D]"
+          className="font-['Newsreader',serif] text-3xl text-[#E2E2E6]"
         >
-          You're All Set!
+          Your health intelligence is ready.
         </motion.h1>
 
         <motion.p
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.5 }}
-          className="text-[#414844] text-sm max-w-md mx-auto"
+          className="text-[#A0ACAB] text-sm max-w-md mx-auto leading-relaxed"
         >
-          Your profile is ready. CauseHealth will now personalize everything
-          based on what you told us.
+          Your profile is calibrated. CauseHealth. will now personalize every
+          analysis to your unique biology, conditions, and goals.
         </motion.p>
       </div>
 
-      {/* First recommendation */}
+      {/* Recommendation / detected risk card */}
       {recommendation && (
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.6 }}
+          className="bg-[#15181C] rounded-[10px] p-6 border border-[#2A2E36]/50"
         >
-          <div className="bg-white rounded-3xl shadow-[0_8px_24px_rgba(14,55,39,0.05)] p-5 space-y-3">
-            <div className="flex items-start gap-3">
-              <div className="p-2 rounded-2xl bg-[#BEE8DC] text-[#3F665C]">
-                <Sparkles className="w-5 h-5" />
-              </div>
-              <div className="space-y-1">
-                <h3 className="text-[10px] uppercase tracking-widest font-bold text-[#414844]/60">
-                  Your First Recommendation
-                </h3>
-                <p className="text-sm font-semibold text-[#012D1D]">
-                  {recommendation.title}
-                </p>
-                <p className="text-sm text-[#414844]">
-                  {recommendation.description}
-                </p>
-              </div>
+          <div className="flex items-start gap-3">
+            <div className="p-2 rounded-[10px] bg-[#1F403D]/20">
+              <Sparkles className="w-5 h-5 text-[#1F403D]" />
+            </div>
+            <div className="space-y-1.5">
+              <p className="text-[10px] uppercase tracking-[0.2em] font-bold text-[#A0ACAB]">
+                First Intelligence Insight
+              </p>
+              <p className="text-sm font-bold text-[#E2E2E6]">
+                {recommendation.title}
+              </p>
+              <p className="text-sm text-[#A0ACAB] leading-relaxed">
+                {recommendation.description}
+              </p>
             </div>
           </div>
         </motion.div>
       )}
 
-      {/* CTAs */}
+      {/* CTA */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -212,20 +188,18 @@ export default function Step7Complete(_props: StepProps) {
         className="space-y-3"
       >
         <button
-          onClick={() => navigate('/app/labs/upload')}
-          disabled={!completed}
-          className="w-full bg-[#1B4332] text-white rounded-full py-4 font-semibold text-sm hover:opacity-90 transition-opacity disabled:opacity-50 flex items-center justify-center gap-2 font-['Manrope',sans-serif]"
-        >
-          <Upload className="w-5 h-5" />
-          Upload Your First Labs
-        </button>
-        <button
           onClick={() => navigate('/app')}
           disabled={!completed}
-          className="w-full text-[#3F665C] rounded-full py-4 font-semibold text-sm hover:opacity-70 transition-opacity disabled:opacity-50 flex items-center justify-center gap-2 font-['Manrope',sans-serif]"
+          className="w-full bg-[#1F403D] text-white rounded-[10px] py-4 uppercase tracking-[0.15em] text-sm font-bold hover:opacity-90 transition-opacity disabled:opacity-50"
         >
-          <LayoutDashboard className="w-5 h-5" />
-          Go to Dashboard
+          Enter CauseHealth.
+        </button>
+        <button
+          onClick={() => navigate('/app/labs/upload')}
+          disabled={!completed}
+          className="w-full text-[#A0ACAB] rounded-[10px] py-3 text-sm uppercase tracking-[0.15em] font-bold hover:text-[#E2E2E6] transition-colors disabled:opacity-50"
+        >
+          Upload Labs First
         </button>
       </motion.div>
     </div>

@@ -18,7 +18,7 @@ export default function SettingsPage() {
 
   // Account form
   const [firstName, setFirstName] = useState(profile?.first_name || '');
-  const [lastName, setLastName] = useState(profile?.last_name || '');
+  const [lastName] = useState(profile?.last_name || '');
   const [dob, setDob] = useState(profile?.date_of_birth || '');
   const [sex, setSex] = useState(profile?.sex || '');
   const [heightCm, setHeightCm] = useState(profile?.height_cm?.toString() || '');
@@ -69,7 +69,7 @@ export default function SettingsPage() {
     .join('') || 'U';
 
   return (
-    <div className="min-h-screen bg-[#FAF9F5] px-6 pt-8 pb-32 font-['Manrope',sans-serif] space-y-12">
+    <div className="min-h-screen bg-[#0A0C0F] px-6 pt-8 pb-32 font-['DM_Sans',sans-serif] space-y-10">
       {/* Top Bar */}
       <div>
         <div className="flex items-center justify-between">
@@ -77,12 +77,12 @@ export default function SettingsPage() {
             onClick={() => window.history.back()}
             className="p-1"
           >
-            <ArrowLeft className="w-5 h-5 text-[#01261F]" strokeWidth={1.5} />
+            <ArrowLeft className="w-5 h-5 text-[#A0ACAB]" strokeWidth={1.5} />
           </button>
-          <span className="font-['Fraunces',serif] italic text-xl text-[#1A3C34]">
+          <span className="font-['Newsreader',serif] text-xl text-[#E2E2E6]">
             CauseHealth.
           </span>
-          <div className="w-10 h-10 rounded-full bg-[#1A3C34] flex items-center justify-center">
+          <div className="w-10 h-10 rounded-full bg-[#1F403D] flex items-center justify-center">
             <span className="text-white text-sm font-bold">{initials}</span>
           </div>
         </div>
@@ -93,12 +93,9 @@ export default function SettingsPage() {
           animate={{ opacity: 1, y: 0 }}
           className="mt-6"
         >
-          <h1 className="font-['Fraunces',serif] italic text-4xl text-[#01261F]">
+          <h1 className="font-['Newsreader',serif] text-4xl text-[#E2E2E6]">
             Settings
           </h1>
-          <p className="text-sm text-[#414846] mt-3 leading-relaxed max-w-sm">
-            Manage your health profile and account preferences.
-          </p>
         </motion.div>
       </div>
 
@@ -108,16 +105,17 @@ export default function SettingsPage() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.05 }}
       >
-        <div className="flex items-center gap-2 mb-4">
-          <User className="w-4 h-4 text-[#414846]" strokeWidth={1.5} />
-          <span className="text-[10px] uppercase tracking-[0.2em] font-bold text-[#414846]">
+        <div className="flex items-center gap-2 mb-6">
+          <User className="w-4 h-4 text-[#A0ACAB]" strokeWidth={1.5} />
+          <span className="text-[10px] uppercase tracking-[0.2em] font-bold text-[#A0ACAB]">
             Profile Information
           </span>
         </div>
 
-        <div className="bg-[#F4F4F0] rounded-[32px] p-8 space-y-5">
+        <div className="space-y-6">
+          {/* First Name */}
           <div>
-            <label className="text-[10px] uppercase tracking-[0.2em] font-bold text-[#414846] mb-2 block">
+            <label className="text-[10px] uppercase tracking-[0.2em] font-bold text-[#A0ACAB] mb-1 block">
               First Name
             </label>
             <input
@@ -125,54 +123,49 @@ export default function SettingsPage() {
               value={firstName}
               onChange={(e) => setFirstName(e.target.value)}
               placeholder="First name"
-              className="w-full bg-white rounded-xl border border-[#C1C8C4]/20 px-5 py-4 text-[#1B1C1A] text-sm outline-none focus:ring-2 focus:ring-[#1A3C34]/20 placeholder:text-[#414846]/40"
+              className="w-full bg-transparent border-b border-[#3F4948]/50 py-4 text-[#E2E2E6] text-sm outline-none focus:border-[#1F403D] placeholder:text-[#A0ACAB]/40 transition-colors"
             />
           </div>
 
+          {/* Date of Birth */}
           <div>
-            <label className="text-[10px] uppercase tracking-[0.2em] font-bold text-[#414846] mb-2 block">
-              Last Name
-            </label>
-            <input
-              type="text"
-              value={lastName}
-              onChange={(e) => setLastName(e.target.value)}
-              placeholder="Last name"
-              className="w-full bg-white rounded-xl border border-[#C1C8C4]/20 px-5 py-4 text-[#1B1C1A] text-sm outline-none focus:ring-2 focus:ring-[#1A3C34]/20 placeholder:text-[#414846]/40"
-            />
-          </div>
-
-          <div>
-            <label className="text-[10px] uppercase tracking-[0.2em] font-bold text-[#414846] mb-2 block">
+            <label className="text-[10px] uppercase tracking-[0.2em] font-bold text-[#A0ACAB] mb-1 block">
               Date of Birth
             </label>
             <input
               type="date"
               value={dob}
               onChange={(e) => setDob(e.target.value)}
-              className="w-full bg-white rounded-xl border border-[#C1C8C4]/20 px-5 py-4 text-[#1B1C1A] text-sm outline-none focus:ring-2 focus:ring-[#1A3C34]/20"
+              className="w-full bg-transparent border-b border-[#3F4948]/50 py-4 text-[#E2E2E6] text-sm outline-none focus:border-[#1F403D] transition-colors [color-scheme:dark]"
             />
           </div>
 
+          {/* Biological Sex - Segmented Control */}
           <div>
-            <label className="text-[10px] uppercase tracking-[0.2em] font-bold text-[#414846] mb-2 block">
-              Sex
+            <label className="text-[10px] uppercase tracking-[0.2em] font-bold text-[#A0ACAB] mb-3 block">
+              Biological Sex
             </label>
-            <select
-              value={sex}
-              onChange={(e) => setSex(e.target.value)}
-              className="w-full bg-white rounded-xl border border-[#C1C8C4]/20 px-5 py-4 text-[#1B1C1A] text-sm outline-none focus:ring-2 focus:ring-[#1A3C34]/20 appearance-none"
-            >
-              <option value="">Select...</option>
-              <option value="male">Male</option>
-              <option value="female">Female</option>
-              <option value="other">Other</option>
-            </select>
+            <div className="flex rounded-[10px] overflow-hidden border border-[#3F4948]/50">
+              {['male', 'female', 'other'].map((option) => (
+                <button
+                  key={option}
+                  onClick={() => setSex(option)}
+                  className={`flex-1 py-3 text-xs uppercase tracking-[0.15em] font-bold transition-colors ${
+                    sex === option
+                      ? 'bg-[#1F403D] text-white'
+                      : 'bg-transparent text-[#A0ACAB] hover:text-[#E2E2E6]'
+                  }`}
+                >
+                  {option}
+                </button>
+              ))}
+            </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          {/* Height & Weight */}
+          <div className="grid grid-cols-2 gap-6">
             <div>
-              <label className="text-[10px] uppercase tracking-[0.2em] font-bold text-[#414846] mb-2 block">
+              <label className="text-[10px] uppercase tracking-[0.2em] font-bold text-[#A0ACAB] mb-1 block">
                 Height (cm)
               </label>
               <input
@@ -180,11 +173,11 @@ export default function SettingsPage() {
                 value={heightCm}
                 onChange={(e) => setHeightCm(e.target.value)}
                 placeholder="175"
-                className="w-full bg-white rounded-xl border border-[#C1C8C4]/20 px-5 py-4 text-[#1B1C1A] text-sm outline-none focus:ring-2 focus:ring-[#1A3C34]/20 placeholder:text-[#414846]/40"
+                className="w-full bg-transparent border-b border-[#3F4948]/50 py-4 text-[#E2E2E6] text-sm outline-none focus:border-[#1F403D] placeholder:text-[#A0ACAB]/40 transition-colors"
               />
             </div>
             <div>
-              <label className="text-[10px] uppercase tracking-[0.2em] font-bold text-[#414846] mb-2 block">
+              <label className="text-[10px] uppercase tracking-[0.2em] font-bold text-[#A0ACAB] mb-1 block">
                 Weight (kg)
               </label>
               <input
@@ -192,7 +185,7 @@ export default function SettingsPage() {
                 value={weightKg}
                 onChange={(e) => setWeightKg(e.target.value)}
                 placeholder="70"
-                className="w-full bg-white rounded-xl border border-[#C1C8C4]/20 px-5 py-4 text-[#1B1C1A] text-sm outline-none focus:ring-2 focus:ring-[#1A3C34]/20 placeholder:text-[#414846]/40"
+                className="w-full bg-transparent border-b border-[#3F4948]/50 py-4 text-[#E2E2E6] text-sm outline-none focus:border-[#1F403D] placeholder:text-[#A0ACAB]/40 transition-colors"
               />
             </div>
           </div>
@@ -205,26 +198,26 @@ export default function SettingsPage() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.1 }}
       >
-        <div className="flex items-center gap-2 mb-4">
-          <Shield className="w-4 h-4 text-[#414846]" />
-          <span className="text-[10px] uppercase tracking-[0.2em] font-bold text-[#414846]">
+        <div className="flex items-center gap-2 mb-6">
+          <Shield className="w-4 h-4 text-[#A0ACAB]" />
+          <span className="text-[10px] uppercase tracking-[0.2em] font-bold text-[#A0ACAB]">
             Account
           </span>
         </div>
 
-        <div className="bg-[#F4F4F0] rounded-[32px] p-8 space-y-5">
+        <div className="space-y-5">
           <div>
-            <label className="text-[10px] uppercase tracking-[0.2em] font-bold text-[#414846] mb-2 block">
+            <label className="text-[10px] uppercase tracking-[0.2em] font-bold text-[#A0ACAB] mb-1 block">
               Email Address
             </label>
             <input
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full bg-white rounded-xl border border-[#C1C8C4]/20 px-5 py-4 text-[#1B1C1A] text-sm outline-none focus:ring-2 focus:ring-[#1A3C34]/20"
+              className="w-full bg-transparent border-b border-[#3F4948]/50 py-4 text-[#E2E2E6] text-sm outline-none focus:border-[#1F403D] transition-colors"
             />
             {email !== user?.email && (
-              <p className="text-xs text-[#414846]/60 mt-2">
+              <p className="text-xs text-[#A0ACAB]/60 mt-2">
                 A confirmation email will be sent to verify the change.
               </p>
             )}
@@ -232,12 +225,12 @@ export default function SettingsPage() {
 
           <button
             onClick={handleChangePassword}
-            className="flex items-center justify-between w-full py-3"
+            className="flex items-center justify-between w-full py-3 border-b border-[#3F4948]/50"
           >
-            <span className="text-sm text-[#01261F] font-medium">Change Password</span>
-            <ChevronRight className="w-4 h-4 text-[#414846]/40" />
+            <span className="text-sm text-[#E2E2E6] font-medium">Change Password</span>
+            <ChevronRight className="w-4 h-4 text-[#A0ACAB]/40" />
           </button>
-          <p className="text-xs text-[#414846]/60 -mt-3">
+          <p className="text-xs text-[#A0ACAB]/60 -mt-3">
             A password reset link will be sent to your email.
           </p>
         </div>
@@ -249,43 +242,41 @@ export default function SettingsPage() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.15 }}
       >
-        <div className="flex items-center gap-2 mb-4">
-          <Sun className="w-4 h-4 text-[#414846]" />
-          <span className="text-[10px] uppercase tracking-[0.2em] font-bold text-[#414846]">
+        <div className="flex items-center gap-2 mb-6">
+          <Sun className="w-4 h-4 text-[#A0ACAB]" />
+          <span className="text-[10px] uppercase tracking-[0.2em] font-bold text-[#A0ACAB]">
             Appearance
           </span>
         </div>
 
-        <div className="bg-[#F4F4F0] rounded-[32px] p-8">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              {darkMode ? (
-                <Moon className="w-5 h-5 text-[#01261F]" />
-              ) : (
-                <Sun className="w-5 h-5 text-[#01261F]" />
-              )}
-              <div>
-                <p className="text-sm font-medium text-[#01261F]">
-                  {darkMode ? 'Dark Mode' : 'Light Mode'}
-                </p>
-                <p className="text-xs text-[#414846]/60 mt-0.5">
-                  Toggle between light and dark themes
-                </p>
-              </div>
+        <div className="flex items-center justify-between py-4">
+          <div className="flex items-center gap-3">
+            {darkMode ? (
+              <Moon className="w-5 h-5 text-[#E2E2E6]" />
+            ) : (
+              <Sun className="w-5 h-5 text-[#E2E2E6]" />
+            )}
+            <div>
+              <p className="text-sm font-medium text-[#E2E2E6]">
+                {darkMode ? 'Dark Mode' : 'Light Mode'}
+              </p>
+              <p className="text-xs text-[#A0ACAB]/60 mt-0.5">
+                Toggle between light and dark themes
+              </p>
             </div>
-            <button
-              onClick={toggleDarkMode}
-              className={`relative inline-flex h-7 w-12 flex-shrink-0 cursor-pointer rounded-full transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-[#1A3C34]/20 focus:ring-offset-2 ${
-                darkMode ? 'bg-[#1A3C34]' : 'bg-[#E3E2DF]'
-              }`}
-            >
-              <span
-                className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 mt-1 ${
-                  darkMode ? 'translate-x-6 ml-0.5' : 'translate-x-1'
-                }`}
-              />
-            </button>
           </div>
+          <button
+            onClick={toggleDarkMode}
+            className={`relative inline-flex h-7 w-12 flex-shrink-0 cursor-pointer rounded-full transition-colors duration-200 focus:outline-none ${
+              darkMode ? 'bg-[#1F403D]' : 'bg-[#282D33]'
+            }`}
+          >
+            <span
+              className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 mt-1 ${
+                darkMode ? 'translate-x-6 ml-0.5' : 'translate-x-1'
+              }`}
+            />
+          </button>
         </div>
       </motion.div>
 
@@ -299,7 +290,7 @@ export default function SettingsPage() {
         <button
           onClick={handleSaveAccount}
           disabled={savingAccount}
-          className="w-full bg-[#1A3C34] text-white rounded-xl py-4 uppercase tracking-[0.15em] font-bold text-sm disabled:opacity-50"
+          className="w-full bg-[#1F403D] text-white rounded-[10px] py-4 uppercase tracking-[0.15em] font-bold text-sm disabled:opacity-50"
         >
           {savingAccount ? 'Saving...' : 'SAVE CHANGES'}
         </button>
@@ -308,10 +299,17 @@ export default function SettingsPage() {
           onClick={signOut}
           className="w-full text-center py-3"
         >
-          <span className="text-[#BA1A1A] uppercase tracking-[0.15em] font-bold text-sm">
+          <span className="text-[#CF6679] uppercase tracking-[0.15em] font-bold text-sm">
             SIGN OUT
           </span>
         </button>
+
+        {/* Encryption Badge */}
+        <div className="text-center pt-4">
+          <span className="text-[10px] text-[#A0ACAB]/40 uppercase tracking-[0.2em]">
+            ENCRYPTION: AES-256 CLINICAL GRADE
+          </span>
+        </div>
       </motion.div>
     </div>
   );

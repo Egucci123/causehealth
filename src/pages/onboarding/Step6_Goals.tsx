@@ -1,6 +1,4 @@
 import { useState } from 'react';
-import { motion } from 'framer-motion';
-import { Target } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 
 interface StepProps {
@@ -9,20 +7,20 @@ interface StepProps {
 }
 
 const GOAL_OPTIONS = [
-  'Optimize lab results',
-  'Reduce medications',
-  'Lose weight',
-  'Gain muscle',
-  'Improve energy',
-  'Fix hair loss',
-  'Improve sleep',
-  'Reduce pain',
-  'Better digestion',
-  'Improve mood',
-  'Hormone optimization',
-  'Cardiovascular health',
-  'Longevity',
-  'Autoimmune management',
+  { label: 'Optimize Lab Results', icon: 'flask' },
+  { label: 'Reduce Medications', icon: 'pill' },
+  { label: 'Lose Weight', icon: 'scale' },
+  { label: 'Gain Muscle', icon: 'dumbbell' },
+  { label: 'Improve Energy', icon: 'zap' },
+  { label: 'Fix Hair Loss', icon: 'scissors' },
+  { label: 'Improve Sleep', icon: 'moon' },
+  { label: 'Reduce Pain', icon: 'heart' },
+  { label: 'Better Digestion', icon: 'stomach' },
+  { label: 'Improve Mood', icon: 'brain' },
+  { label: 'Hormone Optimization', icon: 'activity' },
+  { label: 'Cardiovascular Health', icon: 'heart-pulse' },
+  { label: 'Longevity', icon: 'infinity' },
+  { label: 'Autoimmune Management', icon: 'shield' },
 ];
 
 export default function Step6Goals({ onNext }: StepProps) {
@@ -57,69 +55,67 @@ export default function Step6Goals({ onNext }: StepProps) {
   }
 
   return (
-    <div className="space-y-6 pb-24 font-['Manrope',sans-serif]">
-      <div className="text-center space-y-3">
-        <motion.div
-          initial={{ scale: 0.8, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          transition={{ delay: 0.1 }}
-          className="inline-flex items-center justify-center w-14 h-14 rounded-full bg-[#BEE8DC] text-[#3F665C]"
-        >
-          <Target className="w-7 h-7" />
-        </motion.div>
-        <h1 className="font-['Fraunces',serif] text-2xl font-semibold text-[#012D1D]">
-          What Do You Want to Achieve?
+    <div className="space-y-8 font-['DM_Sans',sans-serif]">
+      {/* Header */}
+      <div>
+        <h1 className="font-['Newsreader',serif] text-4xl text-[#E2E2E6] leading-tight">
+          What are your{' '}
+          <span className="italic text-[#1F403D]">health goals</span>?
         </h1>
-        <p className="text-[#414844] text-sm max-w-md mx-auto">
+        <p className="text-[#A0ACAB] text-sm mt-3 leading-relaxed">
           Your goals shape which insights, recommendations, and lab markers we
-          prioritize for you.
+          prioritize in your analysis.
         </p>
       </div>
 
-      <div className="bg-white rounded-3xl shadow-[0_8px_24px_rgba(14,55,39,0.05)] p-5 space-y-4">
-        <h2 className="text-[10px] uppercase tracking-widest font-bold text-[#414844]/60">
-          Select your goals
-        </h2>
-        <div className="flex flex-wrap gap-2">
-          {GOAL_OPTIONS.map((goal) => {
-            const isSelected = selectedGoals.includes(goal);
-            return (
-              <button
-                key={goal}
-                onClick={() => toggleGoal(goal)}
-                className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 ${
-                  isSelected
-                    ? 'bg-[#1B4332] text-white'
-                    : 'bg-white text-[#414844] shadow-sm hover:shadow-md'
-                }`}
-              >
-                {goal}
-              </button>
-            );
-          })}
-        </div>
+      {/* Goal cards grid */}
+      <div className="grid grid-cols-2 gap-3">
+        {GOAL_OPTIONS.map((goal) => {
+          const isSelected = selectedGoals.includes(goal.label);
+          return (
+            <button
+              key={goal.label}
+              onClick={() => toggleGoal(goal.label)}
+              className={`text-left p-5 rounded-[10px] transition-all duration-200 ${
+                isSelected
+                  ? 'bg-[#1F403D] border border-[#1F403D]'
+                  : 'bg-[#15181C] border border-[#2A2E36]/50 hover:border-[#3F4948]/50'
+              }`}
+            >
+              <p className={`text-sm font-bold ${isSelected ? 'text-white' : 'text-[#E2E2E6]'}`}>
+                {goal.label}
+              </p>
+              {isSelected && (
+                <p className="text-[10px] uppercase tracking-widest text-white/60 mt-1">
+                  Selected
+                </p>
+              )}
+            </button>
+          );
+        })}
       </div>
 
-      <div className="bg-white rounded-3xl shadow-[0_8px_24px_rgba(14,55,39,0.05)] p-5 space-y-3">
-        <h2 className="text-[10px] uppercase tracking-widest font-bold text-[#414844]/60">
+      {/* Free text */}
+      <div className="space-y-2">
+        <label className="text-[10px] uppercase tracking-[0.2em] font-bold text-[#A0ACAB] block">
           Anything specific you'd like us to know?
-        </h2>
+        </label>
         <textarea
           value={freeText}
           onChange={(e) => setFreeText(e.target.value)}
           placeholder="e.g. I've been losing hair for 6 months and my doctor can't figure out why..."
           rows={4}
-          className="w-full bg-[#EFEEEB] rounded-xl py-3 px-4 border border-[#C1C8C2]/30 text-sm text-[#012D1D] placeholder:text-[#414844]/40 focus:outline-none focus:ring-2 focus:ring-[#3F665C]/30 resize-none"
+          className="w-full bg-[#15181C] rounded-[10px] py-4 px-4 border border-[#2A2E36]/50 text-sm text-[#E2E2E6] placeholder:text-[#A0ACAB]/40 focus:outline-none focus:border-[#1F403D] transition-colors resize-none"
         />
       </div>
 
-      {/* Continue button */}
+      {/* Continue */}
       <button
         onClick={handleSave}
         disabled={saving}
-        className="w-full bg-[#1B4332] text-white rounded-full py-4 font-semibold text-sm hover:opacity-90 transition-opacity disabled:opacity-50 font-['Manrope',sans-serif]"
+        className="w-full bg-[#1F403D] text-white rounded-[10px] py-4 uppercase tracking-[0.15em] text-sm font-bold hover:opacity-90 transition-opacity disabled:opacity-50"
       >
-        {saving ? 'Saving...' : 'Continue'}
+        {saving ? 'Saving...' : 'Continue \u2192'}
       </button>
     </div>
   );

@@ -1,7 +1,6 @@
 import { Outlet, Navigate, NavLink, useLocation } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
-import { useUIStore } from '@/store/uiStore';
-import { Home, TestTube2, Pill, User, Bell } from 'lucide-react';
+import { Home, TestTube2, Pill, User, Search } from 'lucide-react';
 
 const NAV_ITEMS = [
   { to: '/app', icon: Home, label: 'HOME', end: true },
@@ -12,15 +11,14 @@ const NAV_ITEMS = [
 
 export function AppShell() {
   const { user, loading, profile } = useAuth();
-  const darkMode = useUIStore((s) => s.darkMode);
   const location = useLocation();
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#FAF9F5]">
+      <div className="min-h-screen flex items-center justify-center bg-[#0A0C0F]">
         <div className="flex flex-col items-center gap-4">
-          <div className="w-10 h-10 border-3 border-[#E3E2DF] border-t-[#1A3C34] rounded-full animate-spin" />
-          <span className="text-[10px] uppercase tracking-[0.2em] font-bold text-[#414846]/50">
+          <div className="w-10 h-10 border-3 border-[#282D33] border-t-[#1F403D] rounded-full animate-spin" />
+          <span className="text-[10px] uppercase tracking-[0.2em] font-bold text-[#A0ACAB]/50">
             Loading
           </span>
         </div>
@@ -39,37 +37,37 @@ export function AppShell() {
   const initials = profile?.first_name?.[0]?.toUpperCase() || '?';
 
   return (
-    <div className={`min-h-screen flex flex-col bg-[#FAF9F5] ${darkMode ? 'dark' : ''}`}>
+    <div className="min-h-screen flex flex-col bg-[#0A0C0F]">
       {/* Top Bar */}
-      <header className="fixed top-0 w-full z-50 bg-[#FAF9F5]/70 backdrop-blur-3xl shadow-[0_8px_32px_-4px_rgba(27,28,26,0.06)]">
+      <header className="fixed top-0 w-full z-50 bg-[#0A0C0F]/80 backdrop-blur-xl border-b border-[#2C3433]/30 shadow-2xl">
         <div className="flex justify-between items-center px-6 h-20 w-full">
           {/* Avatar */}
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full overflow-hidden bg-[#E3E2DF] ring-1 ring-[#C1C8C4]/20 flex items-center justify-center">
-              <span className="text-sm font-bold text-[#01261F]">{initials}</span>
+            <div className="w-10 h-10 rounded-full overflow-hidden bg-[#15181C] border border-[#1F403D]/30 flex items-center justify-center">
+              <span className="text-sm font-bold text-[#E2E2E6]">{initials}</span>
             </div>
           </div>
 
           {/* Brand */}
-          <h1 className="text-xl font-['Fraunces',serif] italic tracking-tighter text-[#1A3C34]">
+          <h1 className="text-2xl font-['Newsreader',serif] tracking-tight text-[#E2E2E6]">
             CauseHealth.
           </h1>
 
-          {/* Bell */}
-          <button className="p-2 text-[#1A3C34] hover:opacity-80 transition-opacity active:scale-95 duration-150">
-            <Bell className="w-[22px] h-[22px]" strokeWidth={1.5} />
+          {/* Search */}
+          <button className="p-2 text-[#A0ACAB] hover:opacity-80 transition-opacity active:scale-95 duration-150">
+            <Search className="w-[22px] h-[22px]" strokeWidth={1.5} />
           </button>
         </div>
       </header>
 
       {/* Main Content */}
-      <main className="pt-28 px-6 pb-32 max-w-5xl mx-auto">
+      <main className="pt-24 px-6 pb-32 max-w-2xl mx-auto w-full">
         <Outlet />
       </main>
 
       {/* Bottom Navigation */}
-      <nav className="fixed bottom-0 w-full z-50 bg-white/70 backdrop-blur-3xl rounded-t-[32px] shadow-[0_-8px_32px_-4px_rgba(27,28,26,0.06)]">
-        <div className="flex justify-around items-center h-24 px-8 pb-4">
+      <nav className="fixed bottom-0 w-full z-50 bg-[#0A0C0F]/90 backdrop-blur-xl border-t border-[#2C3433]/30">
+        <div className="flex justify-around items-center h-20 px-6 pb-2">
           {NAV_ITEMS.map((item) => {
             const isActive = item.end
               ? location.pathname === item.to
@@ -80,16 +78,19 @@ export function AppShell() {
                 key={item.to}
                 to={item.to}
                 end={item.end}
-                className={`flex flex-col items-center relative active:scale-90 transition-transform duration-200 ${
+                className={`flex flex-col items-center gap-1 transition-all duration-200 ${
                   isActive
-                    ? 'text-[#1A3C34] after:content-[\'\'] after:absolute after:-bottom-1 after:w-1 after:h-1 after:bg-[#1A3C34] after:rounded-full'
-                    : 'text-[#1A3C34]/40 hover:text-[#1A3C34] transition-colors'
+                    ? 'text-[#1F403D] scale-110'
+                    : 'text-[#A0ACAB]/60 hover:text-[#A0ACAB] active:scale-90'
                 }`}
               >
                 <item.icon className="w-5 h-5" strokeWidth={1.5} />
-                <span className="uppercase tracking-widest text-[10px] font-bold mt-1">
+                <span className="text-[10px] uppercase tracking-[0.15em] font-bold">
                   {item.label}
                 </span>
+                {isActive && (
+                  <div className="w-4 h-[2px] bg-[#1F403D] rounded-full" />
+                )}
               </NavLink>
             );
           })}

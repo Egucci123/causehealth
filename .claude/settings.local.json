@@ -62,7 +62,11 @@
       "Bash(echo \"Fixed inputs in $f\")",
       "Bash(cp /tmp/stitch$i/code.html \"C:/Users/egut/OneDrive/Documents/cause health/code$i.html\")",
       "WebFetch(domain:causehealth.vercel.app)",
-      "Bash(start \"\" \"C:/Users/egut/OneDrive/Documents/cause health/UI_AUDIT.md\")"
+      "Bash(start \"\" \"C:/Users/egut/OneDrive/Documents/cause health/UI_AUDIT.md\")",
+      "Bash(do mkdir:*)",
+      "Read(//tmp/stitch$i/**)",
+      "Bash(/dev/null cp:*)",
+      "Bash(/dev/null done:*)"
     ]
   }
 }

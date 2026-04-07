@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowLeft } from 'lucide-react';
+import { User } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import Step1Demographics from './Step1_Demographics';
 import Step2Diagnoses from './Step2_Diagnoses';
@@ -12,6 +12,16 @@ import Step6Goals from './Step6_Goals';
 import Step7Complete from './Step7_Complete';
 
 const TOTAL_STEPS = 7;
+
+const STEP_NAMES = [
+  'CORE BIOMETRICS',
+  'PATIENT PROFILE',
+  'PHARMACOLOGICAL PROFILE',
+  'SYMPTOM ANALYSIS',
+  'LIFESTYLE FACTORS',
+  'HEALTH GOALS',
+  'COMPLETE',
+];
 
 export default function OnboardingShell() {
   const [currentStep, setCurrentStep] = useState(1);
@@ -35,9 +45,9 @@ export default function OnboardingShell() {
   /* ─── Loading state ─── */
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#FBF9F6] flex items-center justify-center">
+      <div className="min-h-screen bg-[#0A0C0F] flex items-center justify-center">
         <div className="animate-pulse">
-          <span className="font-['Fraunces',serif] text-2xl font-bold text-[#012D1D]">
+          <span className="font-['Newsreader',serif] text-2xl italic text-[#1F403D]">
             CauseHealth.
           </span>
         </div>
@@ -97,46 +107,34 @@ export default function OnboardingShell() {
   }
 
   return (
-    <div className="min-h-screen bg-[#FBF9F6] font-['Manrope',sans-serif] text-[#1B1C1A]">
+    <div className="min-h-screen bg-[#0A0C0F] font-['DM_Sans',sans-serif] text-[#E2E2E6]">
       {/* ─── Top bar ─── */}
-      <header className="sticky top-0 z-10 bg-[#FBF9F6]/80 backdrop-blur-xl">
-        <div className="max-w-lg mx-auto px-5 pt-5 pb-4">
-          {/* Row: Back — Logo — spacer */}
-          <div className="flex items-center justify-between mb-5">
-            {currentStep > 1 ? (
-              <button
-                onClick={handleBack}
-                className="flex items-center gap-1.5 text-sm font-medium text-[#414844] hover:text-[#012D1D] transition-colors"
-              >
-                <ArrowLeft className="w-4 h-4" />
-                Back
-              </button>
-            ) : (
-              <div className="w-14" />
-            )}
-
-            <span className="font-['Fraunces',serif] text-xl font-bold text-[#012D1D] tracking-tight">
+      <header className="sticky top-0 z-10 bg-[#0A0C0F]/90 backdrop-blur-xl border-b border-[#2A2E36]/30">
+        <div className="max-w-lg mx-auto px-6 py-4">
+          {/* Row: Logo — Step info — User icon */}
+          <div className="flex items-center justify-between mb-4">
+            <span className="font-['Newsreader',serif] text-lg italic text-[#1F403D]">
               CauseHealth.
             </span>
 
-            {/* Spacer to keep logo centered */}
-            <div className="w-14" />
-          </div>
+            <div className="text-center">
+              <p className="text-[10px] uppercase tracking-[0.2em] font-bold text-[#A0ACAB]">
+                Step {stepLabel} / {String(TOTAL_STEPS).padStart(2, '0')}
+              </p>
+              <p className="text-[10px] uppercase tracking-[0.2em] font-bold text-[#E2E2E6]/60 mt-0.5">
+                {STEP_NAMES[currentStep - 1]}
+              </p>
+            </div>
 
-          {/* Progress row */}
-          <div className="flex items-center justify-between mb-3">
-            <p className="text-xs font-bold uppercase tracking-widest text-[#414844]">
-              Step {stepLabel} of 07
-            </p>
-            <p className="text-xs font-bold uppercase tracking-widest text-[#414844]">
-              {progressPercent}% Complete
-            </p>
+            <div className="w-8 h-8 rounded-full bg-[#15181C] border border-[#2A2E36]/50 flex items-center justify-center">
+              <User className="w-4 h-4 text-[#A0ACAB]" />
+            </div>
           </div>
 
           {/* Progress bar */}
-          <div className="h-1 w-full rounded-full bg-[#EAE8E5]">
+          <div className="h-[2px] w-full bg-[#282D33] rounded-full">
             <motion.div
-              className="h-1 rounded-full bg-[#1B4332]"
+              className="h-[2px] rounded-full bg-[#1F403D]"
               initial={false}
               animate={{ width: `${progressPercent}%` }}
               transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
@@ -146,7 +144,7 @@ export default function OnboardingShell() {
       </header>
 
       {/* ─── Step content ─── */}
-      <main className="max-w-lg mx-auto px-5 py-12">
+      <main className="max-w-lg mx-auto px-6 pt-8 pb-32">
         <AnimatePresence mode="wait" custom={direction}>
           <motion.div
             key={currentStep}
@@ -161,6 +159,30 @@ export default function OnboardingShell() {
           </motion.div>
         </AnimatePresence>
       </main>
+
+      {/* ─── Bottom nav ─── */}
+      {currentStep < TOTAL_STEPS && (
+        <div className="fixed bottom-0 inset-x-0 bg-[#0A0C0F]/95 backdrop-blur-xl border-t border-[#2A2E36]/30">
+          <div className="max-w-lg mx-auto px-6 py-4 flex items-center justify-between">
+            {currentStep > 1 ? (
+              <button
+                onClick={handleBack}
+                className="text-[#A0ACAB] text-sm uppercase tracking-[0.15em] font-bold hover:text-[#E2E2E6] transition-colors"
+              >
+                &larr; Previous
+              </button>
+            ) : (
+              <div />
+            )}
+            <button
+              onClick={handleNext}
+              className="bg-[#1F403D] text-white rounded-[10px] py-3 px-6 text-sm uppercase tracking-[0.15em] font-bold hover:opacity-90 transition-opacity"
+            >
+              Next Analysis &rarr;
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

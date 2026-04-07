@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Activity } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/lib/supabase';
 
@@ -39,12 +38,6 @@ const DURATION_OPTIONS = [
   { value: '6_12_months', label: '6-12 months' },
   { value: 'over_1_year', label: 'Over 1 year' },
 ];
-
-function severityColor(severity: number): string {
-  if (severity <= 3) return 'bg-[#BEE8DC]';
-  if (severity <= 6) return 'bg-amber-200';
-  return 'bg-[#FFDAD6]';
-}
 
 export default function Step4Symptoms({ onNext }: StepProps) {
   const { user } = useAuth();
@@ -107,48 +100,42 @@ export default function Step4Symptoms({ onNext }: StepProps) {
   const selectedNames = Object.keys(selected);
 
   return (
-    <div className="space-y-6 pb-24 font-['Manrope',sans-serif]">
-      <div className="text-center space-y-3">
-        <motion.div
-          initial={{ scale: 0.8, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          transition={{ delay: 0.1 }}
-          className="inline-flex items-center justify-center w-14 h-14 rounded-full bg-[#BEE8DC] text-[#3F665C]"
-        >
-          <Activity className="w-7 h-7" />
-        </motion.div>
-        <h1 className="font-['Fraunces',serif] text-2xl font-semibold text-[#012D1D]">
-          What's Bothering You?
+    <div className="space-y-8 font-['DM_Sans',sans-serif]">
+      {/* Header */}
+      <div>
+        <h1 className="font-['Newsreader',serif] text-4xl text-[#E2E2E6] leading-tight">
+          What symptoms are you{' '}
+          <span className="italic text-[#1F403D]">experiencing</span>?
         </h1>
-        <p className="text-[#414844] text-sm max-w-md mx-auto">
-          Select any symptoms you are currently experiencing. We will use these
-          to identify potential root causes and track improvements.
+        <p className="text-[#A0ACAB] text-sm mt-3 leading-relaxed">
+          Select any current symptoms. We map these to biochemical root causes
+          across 39 clusters to surface what conventional care overlooks.
         </p>
       </div>
 
       {error && (
-        <div className="p-3 bg-rose-50 border border-rose-200 rounded-2xl text-sm text-rose-600">
+        <div className="p-3 bg-[#CF6679]/10 border border-[#CF6679]/30 rounded-[10px] text-sm text-[#CF6679]">
           {error}
         </div>
       )}
 
       {/* Symptom categories */}
       {Object.entries(SYMPTOM_CATEGORIES).map(([category, symptoms]) => (
-        <div key={category} className="bg-white rounded-3xl shadow-[0_8px_24px_rgba(14,55,39,0.05)] p-5 space-y-3">
-          <h2 className="text-[10px] uppercase tracking-widest font-bold text-[#414844]/60">
+        <div key={category} className="space-y-3">
+          <h2 className="text-[10px] uppercase tracking-[0.2em] font-bold text-[#A0ACAB]">
             {category}
           </h2>
-          <div className="flex flex-wrap gap-2">
+          <div className="grid grid-cols-2 gap-2">
             {symptoms.map((symptom) => {
               const isSelected = !!selected[symptom];
               return (
                 <button
                   key={symptom}
                   onClick={() => toggleSymptom(symptom)}
-                  className={`px-3 py-1.5 rounded-full text-sm font-medium transition-all duration-200 ${
+                  className={`text-left px-4 py-3 rounded-[10px] text-sm font-medium transition-all duration-200 ${
                     isSelected
-                      ? 'bg-[#1B4332] text-white'
-                      : 'bg-white text-[#414844] shadow-sm hover:shadow-md'
+                      ? 'bg-[#1F403D] text-white border border-[#1F403D]'
+                      : 'bg-[#15181C] text-[#A0ACAB] border border-[#2A2E36]/50 hover:border-[#3F4948]/50'
                   }`}
                 >
                   {symptom}
@@ -167,8 +154,8 @@ export default function Step4Symptoms({ onNext }: StepProps) {
             animate={{ opacity: 1 }}
             className="space-y-4"
           >
-            <h2 className="text-[10px] uppercase tracking-widest font-bold text-[#414844]/60">
-              Tell us more about your symptoms
+            <h2 className="text-[10px] uppercase tracking-[0.2em] font-bold text-[#A0ACAB]">
+              Symptom Details
             </h2>
             {selectedNames.map((symptom) => {
               const data = selected[symptom];
@@ -178,59 +165,46 @@ export default function Step4Symptoms({ onNext }: StepProps) {
                   initial={{ opacity: 0, y: 12 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, height: 0 }}
+                  className="bg-[#15181C] rounded-[10px] p-5 border border-[#2A2E36]/50 space-y-3"
                 >
-                  <div className="bg-white rounded-3xl shadow-[0_8px_24px_rgba(14,55,39,0.05)] p-5 space-y-3">
-                    <h3 className="text-sm font-medium text-[#012D1D]">
-                      {symptom}
-                    </h3>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      {/* Severity slider */}
-                      <div>
-                        <label className="text-[10px] uppercase tracking-widest font-bold text-[#414844]/60 mb-1.5 block">
-                          Severity: {data.severity}/10
-                        </label>
-                        <div className="relative">
-                          <input
-                            type="range"
-                            min={1}
-                            max={10}
-                            value={data.severity}
-                            onChange={(e) =>
-                              updateSymptom(
-                                symptom,
-                                'severity',
-                                Number(e.target.value)
-                              )
-                            }
-                            className="w-full h-2 rounded-full appearance-none bg-[#C1ECD4] accent-[#1B4332]"
-                          />
-                          <div className={`absolute -top-1 left-0 h-4 rounded-full transition-all ${severityColor(data.severity)}`} style={{ width: `${(data.severity / 10) * 100}%`, opacity: 0.3, pointerEvents: 'none' }} />
-                        </div>
-                        <div className="flex justify-between text-xs text-[#414844]/60 mt-1">
-                          <span>Mild</span>
-                          <span>Severe</span>
-                        </div>
+                  <h3 className="text-sm font-bold text-[#E2E2E6]">{symptom}</h3>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="text-[10px] uppercase tracking-[0.2em] font-bold text-[#A0ACAB] mb-2 block">
+                        Severity: {data.severity}/10
+                      </label>
+                      <input
+                        type="range"
+                        min={1}
+                        max={10}
+                        value={data.severity}
+                        onChange={(e) =>
+                          updateSymptom(symptom, 'severity', Number(e.target.value))
+                        }
+                        className="w-full h-1 rounded-full appearance-none bg-[#282D33] accent-[#1F403D]"
+                      />
+                      <div className="flex justify-between text-[10px] text-[#A0ACAB]/60 mt-1">
+                        <span>Mild</span>
+                        <span>Severe</span>
                       </div>
-
-                      {/* Duration */}
-                      <div>
-                        <label className="text-[10px] uppercase tracking-widest font-bold text-[#414844]/60 mb-1.5 block">
-                          Duration
-                        </label>
-                        <select
-                          value={data.duration}
-                          onChange={(e) =>
-                            updateSymptom(symptom, 'duration', e.target.value)
-                          }
-                          className="w-full bg-[#EFEEEB] rounded-xl py-3 px-4 border border-[#C1C8C2]/30 text-sm text-[#012D1D] focus:outline-none focus:ring-2 focus:ring-[#3F665C]/30 appearance-none"
-                        >
-                          {DURATION_OPTIONS.map((opt) => (
-                            <option key={opt.value} value={opt.value}>
-                              {opt.label}
-                            </option>
-                          ))}
-                        </select>
-                      </div>
+                    </div>
+                    <div>
+                      <label className="text-[10px] uppercase tracking-[0.2em] font-bold text-[#A0ACAB] mb-2 block">
+                        Duration
+                      </label>
+                      <select
+                        value={data.duration}
+                        onChange={(e) =>
+                          updateSymptom(symptom, 'duration', e.target.value)
+                        }
+                        className="w-full bg-transparent border-b border-[#3F4948]/50 text-[#E2E2E6] py-2 text-sm focus:outline-none focus:border-[#1F403D] appearance-none"
+                      >
+                        {DURATION_OPTIONS.map((opt) => (
+                          <option key={opt.value} value={opt.value} className="bg-[#15181C]">
+                            {opt.label}
+                          </option>
+                        ))}
+                      </select>
                     </div>
                   </div>
                 </motion.div>
@@ -240,13 +214,13 @@ export default function Step4Symptoms({ onNext }: StepProps) {
         )}
       </AnimatePresence>
 
-      {/* Continue button */}
+      {/* Continue */}
       <button
         onClick={handleSave}
         disabled={saving}
-        className="w-full bg-[#1B4332] text-white rounded-full py-4 font-semibold text-sm hover:opacity-90 transition-opacity disabled:opacity-50 font-['Manrope',sans-serif]"
+        className="w-full bg-[#1F403D] text-white rounded-[10px] py-4 uppercase tracking-[0.15em] text-sm font-bold hover:opacity-90 transition-opacity disabled:opacity-50"
       >
-        {saving ? 'Saving...' : 'Continue'}
+        {saving ? 'Saving...' : 'Continue \u2192'}
       </button>
     </div>
   );

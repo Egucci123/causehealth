@@ -1,6 +1,4 @@
 import { useState } from 'react';
-import { motion } from 'framer-motion';
-import { User, Shield } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 
 interface StepProps {
@@ -46,104 +44,80 @@ export default function Step1Demographics({ onNext }: StepProps) {
     }
   }
 
-  return (
-    <div className="space-y-6 pb-24 font-['Manrope',sans-serif]">
-      {/* Welcome header */}
-      <div className="text-center space-y-3">
-        <motion.div
-          initial={{ scale: 0.8, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          transition={{ delay: 0.1 }}
-          className="inline-flex items-center justify-center w-14 h-14 rounded-full bg-[#BEE8DC] text-[#3F665C]"
-        >
-          <User className="w-7 h-7" />
-        </motion.div>
-        <h1 className="font-['Fraunces',serif] text-2xl font-semibold text-[#012D1D]">
-          Let's get to know you
-        </h1>
-        <p className="text-[#414844] text-sm max-w-md mx-auto">
-          CauseHealth analyzes your labs, medications, and symptoms to find the
-          root causes behind how you feel. We start with a few basics so we can
-          personalize everything for you.
-        </p>
-      </div>
+  const sexOptions = ['male', 'female', 'other'] as const;
 
-      {/* Privacy note */}
-      <div className="bg-white rounded-3xl shadow-[0_8px_24px_rgba(14,55,39,0.05)] p-4 flex items-start gap-3">
-        <Shield className="w-5 h-5 text-[#3F665C] mt-0.5 shrink-0" />
-        <p className="text-xs text-[#414844]">
-          Your data is encrypted and private. We never share your health
-          information with third parties. You can delete your data at any time.
+  return (
+    <div className="space-y-8 font-['DM_Sans',sans-serif]">
+      {/* Header */}
+      <div>
+        <h1 className="font-['Newsreader',serif] text-4xl text-[#E2E2E6] leading-tight">
+          Build your{' '}
+          <span className="italic text-[#1F403D]/80">health profile</span>
+        </h1>
+        <p className="text-[#A0ACAB] text-sm mt-3 leading-relaxed">
+          We use this data to calibrate your longevity baseline and personalize
+          every analysis to your unique biology.
         </p>
       </div>
 
       {error && (
-        <div className="p-3 bg-rose-50 border border-rose-200 rounded-2xl text-sm text-rose-600">
+        <div className="p-3 bg-[#CF6679]/10 border border-[#CF6679]/30 rounded-[10px] text-sm text-[#CF6679]">
           {error}
         </div>
       )}
 
-      {/* Form */}
-      <div className="bg-white rounded-3xl shadow-[0_8px_24px_rgba(14,55,39,0.05)] p-5 space-y-5">
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div>
-            <label className="text-[10px] uppercase tracking-widest font-bold text-[#414844]/60 mb-1.5 block">
-              First Name
-            </label>
-            <input
-              type="text"
-              value={form.first_name}
-              onChange={(e) => update('first_name', e.target.value)}
-              placeholder="Jane"
-              className="w-full bg-[#EFEEEB] rounded-xl py-3 px-4 border border-[#C1C8C2]/30 text-sm text-[#012D1D] placeholder:text-[#414844]/40 focus:outline-none focus:ring-2 focus:ring-[#3F665C]/30"
-            />
-          </div>
-          <div>
-            <label className="text-[10px] uppercase tracking-widest font-bold text-[#414844]/60 mb-1.5 block">
-              Last Name
-            </label>
-            <input
-              type="text"
-              value={form.last_name}
-              onChange={(e) => update('last_name', e.target.value)}
-              placeholder="Doe"
-              className="w-full bg-[#EFEEEB] rounded-xl py-3 px-4 border border-[#C1C8C2]/30 text-sm text-[#012D1D] placeholder:text-[#414844]/40 focus:outline-none focus:ring-2 focus:ring-[#3F665C]/30"
-            />
-          </div>
+      {/* Form fields */}
+      <div className="space-y-6">
+        <div>
+          <label className="text-[10px] uppercase tracking-[0.2em] font-bold text-[#A0ACAB] block mb-2">
+            First Name
+          </label>
+          <input
+            type="text"
+            value={form.first_name}
+            onChange={(e) => update('first_name', e.target.value)}
+            placeholder="Jane"
+            className="w-full bg-transparent border-b border-[#3F4948]/50 text-[#E2E2E6] py-4 text-sm placeholder:text-[#A0ACAB]/40 focus:outline-none focus:border-[#1F403D] transition-colors"
+          />
         </div>
 
         <div>
-          <label className="text-[10px] uppercase tracking-widest font-bold text-[#414844]/60 mb-1.5 block">
+          <label className="text-[10px] uppercase tracking-[0.2em] font-bold text-[#A0ACAB] block mb-2">
             Date of Birth
           </label>
           <input
             type="date"
             value={form.date_of_birth}
             onChange={(e) => update('date_of_birth', e.target.value)}
-            className="w-full bg-[#EFEEEB] rounded-xl py-3 px-4 border border-[#C1C8C2]/30 text-sm text-[#012D1D] focus:outline-none focus:ring-2 focus:ring-[#3F665C]/30"
+            className="w-full bg-transparent border-b border-[#3F4948]/50 text-[#E2E2E6] py-4 text-sm focus:outline-none focus:border-[#1F403D] transition-colors [color-scheme:dark]"
           />
         </div>
 
         <div>
-          <label className="text-[10px] uppercase tracking-widest font-bold text-[#414844]/60 mb-1.5 block">
+          <label className="text-[10px] uppercase tracking-[0.2em] font-bold text-[#A0ACAB] block mb-3">
             Biological Sex
           </label>
-          <select
-            value={form.sex}
-            onChange={(e) => update('sex', e.target.value)}
-            className="w-full bg-[#EFEEEB] rounded-xl py-3 px-4 border border-[#C1C8C2]/30 text-sm text-[#012D1D] focus:outline-none focus:ring-2 focus:ring-[#3F665C]/30 appearance-none"
-          >
-            <option value="">Select...</option>
-            <option value="male">Male</option>
-            <option value="female">Female</option>
-            <option value="other">Other / Prefer not to say</option>
-          </select>
+          <div className="flex gap-2">
+            {sexOptions.map((option) => (
+              <button
+                key={option}
+                onClick={() => update('sex', option)}
+                className={`flex-1 py-3 rounded-[10px] text-xs uppercase tracking-[0.15em] font-bold transition-all duration-200 ${
+                  form.sex === option
+                    ? 'bg-[#1F403D] text-white'
+                    : 'bg-transparent text-[#A0ACAB] border border-[#3F4948]/50 hover:border-[#3F4948]'
+                }`}
+              >
+                {option === 'other' ? 'Other' : option.charAt(0).toUpperCase() + option.slice(1)}
+              </button>
+            ))}
+          </div>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div className="grid grid-cols-2 gap-6">
           <div>
-            <label className="text-[10px] uppercase tracking-widest font-bold text-[#414844]/60 mb-1.5 block">
-              Height (cm)
+            <label className="text-[10px] uppercase tracking-[0.2em] font-bold text-[#A0ACAB] block mb-2">
+              Height (CM)
             </label>
             <input
               type="number"
@@ -152,12 +126,12 @@ export default function Step1Demographics({ onNext }: StepProps) {
               placeholder="170"
               min={50}
               max={250}
-              className="w-full bg-[#EFEEEB] rounded-xl py-3 px-4 border border-[#C1C8C2]/30 text-sm text-[#012D1D] placeholder:text-[#414844]/40 focus:outline-none focus:ring-2 focus:ring-[#3F665C]/30"
+              className="w-full bg-transparent border-b border-[#3F4948]/50 text-[#E2E2E6] py-4 text-sm placeholder:text-[#A0ACAB]/40 focus:outline-none focus:border-[#1F403D] transition-colors"
             />
           </div>
           <div>
-            <label className="text-[10px] uppercase tracking-widest font-bold text-[#414844]/60 mb-1.5 block">
-              Weight (kg)
+            <label className="text-[10px] uppercase tracking-[0.2em] font-bold text-[#A0ACAB] block mb-2">
+              Weight (KG)
             </label>
             <input
               type="number"
@@ -166,20 +140,25 @@ export default function Step1Demographics({ onNext }: StepProps) {
               placeholder="70"
               min={20}
               max={300}
-              className="w-full bg-[#EFEEEB] rounded-xl py-3 px-4 border border-[#C1C8C2]/30 text-sm text-[#012D1D] placeholder:text-[#414844]/40 focus:outline-none focus:ring-2 focus:ring-[#3F665C]/30"
+              className="w-full bg-transparent border-b border-[#3F4948]/50 text-[#E2E2E6] py-4 text-sm placeholder:text-[#A0ACAB]/40 focus:outline-none focus:border-[#1F403D] transition-colors"
             />
           </div>
         </div>
       </div>
 
-      {/* Continue button */}
+      {/* CTA */}
       <button
         onClick={handleSave}
         disabled={saving}
-        className="w-full bg-[#1B4332] text-white rounded-full py-4 font-semibold text-sm hover:opacity-90 transition-opacity disabled:opacity-50 font-['Manrope',sans-serif]"
+        className="w-full bg-[#1F403D] text-white rounded-[10px] py-4 uppercase tracking-[0.15em] text-sm font-bold hover:opacity-90 transition-opacity disabled:opacity-50"
       >
-        {saving ? 'Saving...' : 'Continue'}
+        {saving ? 'Saving...' : 'Proceed to Vitals \u2192'}
       </button>
+
+      {/* Compliance footer */}
+      <p className="text-[10px] text-[#A0ACAB]/40 text-center tracking-wide leading-relaxed">
+        ENCRYPTION: AES-256 CLINICAL GRADE &nbsp;/&nbsp; REGULATORY: HIPAA / GDPR COMPLIANT
+      </p>
     </div>
   );
 }
