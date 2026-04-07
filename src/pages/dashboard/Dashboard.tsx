@@ -28,7 +28,7 @@ function getMedDepletions(meds: Medication[]) {
 }
 
 export default function Dashboard() {
-  const { profile, user } = useAuth();
+  const { user } = useAuth();
   const [latestDraw, setLatestDraw] = useState<LabDraw | null>(null);
   const [labValues, setLabValues] = useState<LabValue[]>([]);
   const [medications, setMedications] = useState<Medication[]>([]);
@@ -66,7 +66,6 @@ export default function Dashboard() {
   const optimalCount = labValues.filter(v => v.optimal_flag === 'optimal').length;
   const criticalCount = labValues.filter(v => v.optimal_flag === 'deficient' || v.optimal_flag === 'elevated').length;
   const depletions = getMedDepletions(medications);
-  const firstName = profile?.first_name || 'there';
 
   const scoreDescription = healthScore !== null
     ? `Based on ${labValues.length} markers from your most recent lab panel.`
