@@ -66,7 +66,11 @@
       "Bash(do mkdir:*)",
       "Read(//tmp/stitch$i/**)",
       "Bash(/dev/null cp:*)",
-      "Bash(/dev/null done:*)"
+      "Bash(/dev/null done:*)",
+      "Bash(mkdir -p /tmp/stitch35)",
+      "Bash(unzip -o \"stitch \\(35\\).zip\" -d /tmp/stitch35)",
+      "Bash(cp /tmp/stitch35/screen.png \"C:/Users/egut/OneDrive/Documents/cause health/stitch35.png\")",
+      "Bash(cp /tmp/stitch35/code.html \"C:/Users/egut/OneDrive/Documents/cause health/code35.html\")"
     ]
   }
 }

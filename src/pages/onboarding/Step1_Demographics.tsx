@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
+import { ChevronRight } from 'lucide-react';
 
 interface StepProps {
   onNext: () => void;
@@ -12,9 +13,8 @@ export default function Step1Demographics({ onNext }: StepProps) {
   const [error, setError] = useState('');
   const [form, setForm] = useState({
     first_name: profile?.first_name || '',
-    last_name: profile?.last_name || '',
     date_of_birth: profile?.date_of_birth || '',
-    sex: (profile?.sex as string) || '',
+    sex: (profile?.sex as string) || 'male',
     height_cm: profile?.height_cm?.toString() || '',
     weight_kg: profile?.weight_kg?.toString() || '',
   });
@@ -29,7 +29,6 @@ export default function Step1Demographics({ onNext }: StepProps) {
     try {
       await updateProfile({
         first_name: form.first_name || null,
-        last_name: form.last_name || null,
         date_of_birth: form.date_of_birth || null,
         sex: (form.sex as 'male' | 'female' | 'other') || null,
         height_cm: form.height_cm ? Number(form.height_cm) : null,
@@ -37,128 +36,75 @@ export default function Step1Demographics({ onNext }: StepProps) {
       });
       onNext();
     } catch (err) {
-      console.error('Failed to save demographics:', err);
-      setError('Failed to save your information. Please try again.');
+      console.error('Failed to save profile:', err);
+      setError('Failed to save. Please try again.');
     } finally {
       setSaving(false);
     }
   }
 
-  const sexOptions = ['male', 'female', 'other'] as const;
+  const labelClass = "block text-[10px] uppercase tracking-[0.2em] font-bold text-[#A0ACAB] mb-1 group-focus-within:text-[#1F403D] transition-colors";
+  const inputClass = "w-full bg-transparent border-0 border-b border-[#3F4948] py-3 px-0 text-lg font-medium text-[#E2E2E6] focus:ring-0 focus:border-[#1F403D] focus:outline-none transition-all placeholder:text-[#A0ACAB]/30";
 
   return (
-    <div className="space-y-8 font-['DM_Sans',sans-serif]">
-      {/* Header */}
-      <div>
-        <h1 className="font-['Newsreader',serif] text-4xl text-[#E2E2E6] leading-tight">
-          Build your{' '}
-          <span className="italic text-[#1F403D]/80">health profile</span>
+    <div>
+      <div className="mb-16">
+        <h1 className="font-['Newsreader',serif] text-5xl text-[#E2E2E6] tracking-tight leading-[1.1] mb-6">
+          Build your <span className="italic font-light">health profile</span>
         </h1>
-        <p className="text-[#A0ACAB] text-sm mt-3 leading-relaxed">
-          We use this data to calibrate your longevity baseline and personalize
-          every analysis to your unique biology.
+        <p className="text-[#A0ACAB]/80 text-lg font-light leading-relaxed max-w-md">
+          Accurate biometric data allows our algorithms to calibrate your specific longevity baseline.
         </p>
       </div>
 
       {error && (
-        <div className="p-3 bg-[#CF6679]/10 border border-[#CF6679]/30 rounded-[10px] text-sm text-[#CF6679]">
-          {error}
-        </div>
+        <div className="mb-6 p-4 bg-[#CF6679]/10 border border-[#CF6679]/30 rounded text-[#CF6679] text-sm">{error}</div>
       )}
 
-      {/* Form fields */}
-      <div className="space-y-6">
-        <div>
-          <label className="text-[10px] uppercase tracking-[0.2em] font-bold text-[#A0ACAB] block mb-2">
-            First Name
-          </label>
-          <input
-            type="text"
-            value={form.first_name}
-            onChange={(e) => update('first_name', e.target.value)}
-            placeholder="Jane"
-            className="w-full bg-transparent border-b border-[#3F4948]/50 text-[#E2E2E6] py-4 text-sm placeholder:text-[#A0ACAB]/40 focus:outline-none focus:border-[#1F403D] transition-colors"
-          />
-        </div>
-
-        <div>
-          <label className="text-[10px] uppercase tracking-[0.2em] font-bold text-[#A0ACAB] block mb-2">
-            Date of Birth
-          </label>
-          <input
-            type="date"
-            value={form.date_of_birth}
-            onChange={(e) => update('date_of_birth', e.target.value)}
-            className="w-full bg-transparent border-b border-[#3F4948]/50 text-[#E2E2E6] py-4 text-sm focus:outline-none focus:border-[#1F403D] transition-colors [color-scheme:dark]"
-          />
-        </div>
-
-        <div>
-          <label className="text-[10px] uppercase tracking-[0.2em] font-bold text-[#A0ACAB] block mb-3">
-            Biological Sex
-          </label>
-          <div className="flex gap-2">
-            {sexOptions.map((option) => (
-              <button
-                key={option}
-                onClick={() => update('sex', option)}
-                className={`flex-1 py-3 rounded-[10px] text-xs uppercase tracking-[0.15em] font-bold transition-all duration-200 ${
-                  form.sex === option
-                    ? 'bg-[#1F403D] text-white'
-                    : 'bg-transparent text-[#A0ACAB] border border-[#3F4948]/50 hover:border-[#3F4948]'
-                }`}
-              >
-                {option === 'other' ? 'Other' : option.charAt(0).toUpperCase() + option.slice(1)}
-              </button>
-            ))}
+      <div className="space-y-10">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-10">
+          <div className="group relative">
+            <label className={labelClass}>First Name</label>
+            <input type="text" placeholder="Enter name" value={form.first_name} onChange={(e) => update('first_name', e.target.value)} className={inputClass} />
+          </div>
+          <div className="group relative">
+            <label className={labelClass}>Date of Birth</label>
+            <input type="date" value={form.date_of_birth} onChange={(e) => update('date_of_birth', e.target.value)} className={`${inputClass} appearance-none`} style={{ colorScheme: 'dark' }} />
+          </div>
+          <div className="md:col-span-2 space-y-4">
+            <label className="block text-[10px] uppercase tracking-[0.2em] font-bold text-[#A0ACAB]">Biological Sex</label>
+            <div className="flex border border-[#3F4948]/30 divide-x divide-[#3F4948]/30">
+              {(['male', 'female', 'other'] as const).map((sex) => (
+                <button key={sex} type="button" onClick={() => update('sex', sex)}
+                  className={`flex-1 py-4 text-[10px] font-bold tracking-[0.2em] uppercase transition-all ${form.sex === sex ? 'bg-[#1F403D] text-white' : 'text-[#A0ACAB] hover:bg-[#1E2226]'}`}
+                >{sex}</button>
+              ))}
+            </div>
+          </div>
+          <div className="group relative">
+            <label className={labelClass}>Height <span className="text-[#A0ACAB]/40 font-normal tracking-normal">(cm)</span></label>
+            <input type="number" placeholder="000" value={form.height_cm} onChange={(e) => update('height_cm', e.target.value)} className={inputClass} />
+          </div>
+          <div className="group relative">
+            <label className={labelClass}>Weight <span className="text-[#A0ACAB]/40 font-normal tracking-normal">(kg)</span></label>
+            <input type="number" placeholder="00" value={form.weight_kg} onChange={(e) => update('weight_kg', e.target.value)} className={inputClass} />
           </div>
         </div>
 
-        <div className="grid grid-cols-2 gap-6">
-          <div>
-            <label className="text-[10px] uppercase tracking-[0.2em] font-bold text-[#A0ACAB] block mb-2">
-              Height (CM)
-            </label>
-            <input
-              type="number"
-              value={form.height_cm}
-              onChange={(e) => update('height_cm', e.target.value)}
-              placeholder="170"
-              min={50}
-              max={250}
-              className="w-full bg-transparent border-b border-[#3F4948]/50 text-[#E2E2E6] py-4 text-sm placeholder:text-[#A0ACAB]/40 focus:outline-none focus:border-[#1F403D] transition-colors"
-            />
+        <div className="mt-20 flex flex-col md:flex-row items-center justify-between border-t border-[#3F4948]/20 pt-10 gap-8">
+          <div className="order-2 md:order-1">
+            <p className="text-[10px] uppercase tracking-[0.1em] text-[#A0ACAB]/40 leading-relaxed font-medium">
+              Encryption: AES-256 Clinical Grade<br />Regulatory: HIPAA / GDPR Compliant
+            </p>
           </div>
-          <div>
-            <label className="text-[10px] uppercase tracking-[0.2em] font-bold text-[#A0ACAB] block mb-2">
-              Weight (KG)
-            </label>
-            <input
-              type="number"
-              value={form.weight_kg}
-              onChange={(e) => update('weight_kg', e.target.value)}
-              placeholder="70"
-              min={20}
-              max={300}
-              className="w-full bg-transparent border-b border-[#3F4948]/50 text-[#E2E2E6] py-4 text-sm placeholder:text-[#A0ACAB]/40 focus:outline-none focus:border-[#1F403D] transition-colors"
-            />
-          </div>
+          <button onClick={handleSave} disabled={saving}
+            className="order-1 md:order-2 group flex items-center justify-between gap-8 bg-[#1F403D] text-white px-8 py-5 font-bold tracking-[0.2em] uppercase text-xs active:opacity-90 transition-all w-full md:w-auto disabled:opacity-50"
+          >
+            {saving ? 'Saving...' : 'Proceed to vitals'}
+            <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+          </button>
         </div>
       </div>
-
-      {/* CTA */}
-      <button
-        onClick={handleSave}
-        disabled={saving}
-        className="w-full bg-[#1F403D] text-white rounded-[10px] py-4 uppercase tracking-[0.15em] text-sm font-bold hover:opacity-90 transition-opacity disabled:opacity-50"
-      >
-        {saving ? 'Saving...' : 'Proceed to Vitals \u2192'}
-      </button>
-
-      {/* Compliance footer */}
-      <p className="text-[10px] text-[#A0ACAB]/40 text-center tracking-wide leading-relaxed">
-        ENCRYPTION: AES-256 CLINICAL GRADE &nbsp;/&nbsp; REGULATORY: HIPAA / GDPR COMPLIANT
-      </p>
     </div>
   );
 }

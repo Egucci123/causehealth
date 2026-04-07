@@ -1,77 +1,57 @@
 import { Link } from 'react-router-dom';
-import { motion } from 'framer-motion';
-
-const fadeUp = {
-  initial: { opacity: 0, y: 24 },
-  whileInView: { opacity: 1, y: 0 },
-  viewport: { once: true },
-  transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1] as [number, number, number, number] },
-};
 
 export default function Landing() {
   return (
-    <div className="min-h-screen bg-[#0A0C0F] font-['DM_Sans',sans-serif] text-[#E2E2E6] flex flex-col items-center justify-center relative overflow-hidden px-6">
-      {/* ─── ECG Line SVG ─── */}
-      <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-        <svg
-          viewBox="0 0 1200 200"
-          className="w-full max-w-4xl opacity-100"
-          preserveAspectRatio="none"
-        >
-          <motion.path
-            d="M0,100 L200,100 L230,100 L250,40 L270,160 L290,20 L310,180 L330,60 L350,100 L400,100 L1200,100"
-            fill="none"
-            stroke="#3F4948"
-            strokeWidth="1"
-            strokeOpacity="0.3"
-            initial={{ pathLength: 0 }}
-            animate={{ pathLength: 1 }}
-            transition={{ duration: 2.5, ease: 'easeInOut' }}
-          />
-        </svg>
-      </div>
+    <div className="bg-[#0A0C0F] text-[#E2E2E6] font-['DM_Sans',sans-serif] antialiased overflow-hidden selection:bg-[#1F403D]/30 min-h-screen">
+      {/* Background Grain Texture */}
+      <div className="fixed inset-0 opacity-[0.03] pointer-events-none" style={{
+        backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`
+      }} />
 
-      {/* ─── Content ─── */}
-      <div className="relative z-10 flex flex-col items-center text-center max-w-lg">
-        <motion.h1
-          {...fadeUp}
-          className="font-['Newsreader',serif] text-6xl text-[#1F403D]/80 mb-12 tracking-tight"
-        >
-          CauseHealth.
-        </motion.h1>
+      {/* Screen 1: Splash Section */}
+      <main className="relative h-screen w-full flex flex-col items-center justify-center px-8 z-10">
+        {/* ECG Pulse Graphic Container */}
+        <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-40">
+          <svg className="max-w-4xl" fill="none" height="200" viewBox="0 0 1000 200" width="100%" xmlns="http://www.w3.org/2000/svg">
+            <path className="ecg-path" d="M0 100H200L220 70L250 130L280 20L310 180L340 100H1000" stroke="#1F403D" strokeWidth="2" />
+          </svg>
+        </div>
 
-        <motion.div
-          {...fadeUp}
-          transition={{ duration: 0.6, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
-          className="space-y-2 mb-16"
-        >
-          <p className="text-[#A0ACAB] text-lg leading-relaxed">
-            Your doctor has{' '}
-            <span className="text-[#C9A84C] font-semibold">12 minutes.</span>
-          </p>
-          <p className="text-[#A0ACAB] text-lg leading-relaxed">
+        {/* Brand Identity */}
+        <div className="text-center relative z-20 space-y-6">
+          <h1 className="font-['Newsreader',serif] text-6xl md:text-8xl text-[#1F403D] tracking-tight font-medium">
+            CauseHealth.
+          </h1>
+          <p className="font-['DM_Sans',sans-serif] text-lg md:text-xl text-[#A0ACAB] max-w-md mx-auto leading-relaxed">
+            Your doctor has <span className="text-[#C9A84C]">12 minutes</span>.<br />
             We have everything they miss.
           </p>
-        </motion.div>
+        </div>
 
-        <motion.div
-          {...fadeUp}
-          transition={{ duration: 0.6, delay: 0.4, ease: [0.22, 1, 0.36, 1] }}
-          className="flex flex-col items-center gap-5"
-        >
-          <Link to="/register">
-            <button className="bg-[#1F403D] text-white rounded-[10px] py-4 px-16 uppercase tracking-[0.15em] text-sm font-bold hover:opacity-90 transition-opacity">
-              Get Started
-            </button>
+        {/* Primary Action */}
+        <div className="absolute bottom-20 w-full max-w-xs px-6">
+          <Link
+            to="/register"
+            className="group relative w-full bg-[#2D5A56] py-4 rounded-xl text-[#E6F0EE] font-bold text-sm uppercase tracking-widest overflow-hidden transition-all hover:brightness-110 active:scale-95 shadow-[0_0_40px_rgba(31,64,61,0.2)] flex items-center justify-center"
+          >
+            <span className="relative z-10">Get Started</span>
+            <div className="absolute inset-0 bg-white/5 translate-y-full group-hover:translate-y-0 transition-transform duration-300" />
           </Link>
           <Link
             to="/login"
-            className="text-[#A0ACAB] text-sm hover:text-[#E2E2E6] transition-colors"
+            className="block text-center text-[#A0ACAB] text-sm mt-4 hover:text-[#E2E2E6] transition-colors"
           >
             Sign In
           </Link>
-        </motion.div>
-      </div>
+        </div>
+
+        {/* Ambient Medical Glows */}
+        <div className="absolute top-1/4 -left-20 w-96 h-96 bg-[#1F403D]/10 blur-[120px] rounded-full pointer-events-none" />
+        <div className="absolute bottom-1/4 -right-20 w-96 h-96 bg-[#C9A84C]/5 blur-[120px] rounded-full pointer-events-none" />
+      </main>
+
+      {/* Visual Polish: Ghost Border Effect */}
+      <div className="fixed inset-0 border border-[#2C3433]/10 pointer-events-none" />
     </div>
   );
 }
