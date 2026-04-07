@@ -3,10 +3,10 @@ import { useAuth } from '@/hooks/useAuth';
 import { Home, TestTube2, Pill, User, Search } from 'lucide-react';
 
 const NAV_ITEMS = [
-  { to: '/app', icon: Home, label: 'HOME', end: true },
-  { to: '/app/labs', icon: TestTube2, label: 'LABS' },
-  { to: '/app/medications', icon: Pill, label: 'MEDS' },
-  { to: '/app/settings', icon: User, label: 'PROFILE' },
+  { to: '/app', icon: Home, label: 'Home', end: true },
+  { to: '/app/labs', icon: TestTube2, label: 'Labs' },
+  { to: '/app/medications', icon: Pill, label: 'Meds' },
+  { to: '/app/settings', icon: User, label: 'Profile' },
 ];
 
 export function AppShell() {
@@ -15,86 +15,58 @@ export function AppShell() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#0A0C0F]">
-        <div className="flex flex-col items-center gap-4">
-          <div className="w-10 h-10 border-3 border-[#282D33] border-t-[#1F403D] rounded-full animate-spin" />
-          <span className="text-[10px] uppercase tracking-[0.2em] font-bold text-[#A0ACAB]/50">
-            Loading
-          </span>
-        </div>
+      <div className="min-h-screen bg-[#0A0C0F] flex items-center justify-center">
+        <div className="w-8 h-8 border-2 border-[#282D33] border-t-[#1F403D] rounded-full animate-spin" />
       </div>
     );
   }
 
-  if (!user) {
-    return <Navigate to="/login" replace />;
-  }
-
-  if (profile && !profile.onboarding_completed) {
-    return <Navigate to="/onboarding" replace />;
-  }
+  if (!user) return <Navigate to="/login" replace />;
+  if (profile && !profile.onboarding_completed) return <Navigate to="/onboarding" replace />;
 
   const initials = profile?.first_name?.[0]?.toUpperCase() || '?';
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#0A0C0F]">
-      {/* Top Bar */}
-      <header className="fixed top-0 w-full z-50 bg-[#0A0C0F]/80 backdrop-blur-xl border-b border-[#2C3433]/30 shadow-2xl">
-        <div className="flex justify-between items-center px-6 h-20 w-full">
-          {/* Avatar */}
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full overflow-hidden bg-[#15181C] border border-[#1F403D]/30 flex items-center justify-center">
-              <span className="text-sm font-bold text-[#E2E2E6]">{initials}</span>
-            </div>
+    <div className="min-h-screen bg-[#0A0C0F] text-[#E2E2E6] font-['DM_Sans',sans-serif] select-none">
+      {/* TopAppBar — exact from stitch29 */}
+      <header className="bg-[#0A0C0F]/80 backdrop-blur-xl fixed top-0 w-full z-50 border-b border-[#2C3433]/30 shadow-2xl flex items-center justify-between px-6 h-20">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-full overflow-hidden border border-[#1F403D]/30 bg-[#1E2226] flex items-center justify-center">
+            <span className="text-sm font-bold text-[#E2E2E6]">{initials}</span>
           </div>
-
-          {/* Brand */}
-          <h1 className="text-2xl font-['Newsreader',serif] tracking-tight text-[#E2E2E6]">
-            CauseHealth.
-          </h1>
-
-          {/* Search */}
-          <button className="p-2 text-[#A0ACAB] hover:opacity-80 transition-opacity active:scale-95 duration-150">
-            <Search className="w-[22px] h-[22px]" strokeWidth={1.5} />
-          </button>
+          <h1 className="font-['Newsreader',serif] text-2xl tracking-tight text-[#E2E2E6]">CauseHealth.</h1>
+        </div>
+        <div className="flex items-center gap-6">
+          <Search className="w-5 h-5 text-[#A0ACAB] hover:text-[#1F403D] transition-colors active:scale-95 cursor-pointer" strokeWidth={1.5} />
         </div>
       </header>
 
       {/* Main Content */}
-      <main className="pt-24 px-6 pb-32 max-w-2xl mx-auto w-full">
+      <main className="pt-24 pb-32 px-6 max-w-2xl mx-auto">
         <Outlet />
       </main>
 
-      {/* Bottom Navigation */}
-      <nav className="fixed bottom-0 w-full z-50 bg-[#0A0C0F]/90 backdrop-blur-xl border-t border-[#2C3433]/30">
-        <div className="flex justify-around items-center h-20 px-6 pb-2">
-          {NAV_ITEMS.map((item) => {
-            const isActive = item.end
-              ? location.pathname === item.to
-              : location.pathname.startsWith(item.to);
+      {/* BottomNavBar — exact from stitch29 */}
+      <nav className="bg-[#0A0C0F]/95 backdrop-blur-xl fixed bottom-0 w-full z-50 rounded-t-2xl border-t border-[#2C3433]/20 shadow-[0_-10px_40px_rgba(0,0,0,0.4)] h-20 px-4 flex justify-around items-center">
+        {NAV_ITEMS.map((item) => {
+          const isActive = item.end
+            ? location.pathname === item.to
+            : location.pathname.startsWith(item.to);
 
-            return (
-              <NavLink
-                key={item.to}
-                to={item.to}
-                end={item.end}
-                className={`flex flex-col items-center gap-1 transition-all duration-200 ${
-                  isActive
-                    ? 'text-[#1F403D] scale-110'
-                    : 'text-[#A0ACAB]/60 hover:text-[#A0ACAB] active:scale-90'
-                }`}
-              >
-                <item.icon className="w-5 h-5" strokeWidth={1.5} />
-                <span className="text-[10px] uppercase tracking-[0.15em] font-bold">
-                  {item.label}
-                </span>
-                {isActive && (
-                  <div className="w-4 h-[2px] bg-[#1F403D] rounded-full" />
-                )}
-              </NavLink>
-            );
-          })}
-        </div>
+          return (
+            <NavLink
+              key={item.to}
+              to={item.to}
+              end={item.end}
+              className={`flex flex-col items-center justify-center transition-all duration-300 ${
+                isActive ? 'text-[#1F403D]' : 'text-[#A0ACAB]/50 hover:text-[#A0ACAB]'
+              }`}
+            >
+              <item.icon className="w-7 h-7" strokeWidth={1.5} />
+              <span className="text-[10px] uppercase tracking-[0.15em] font-bold mt-1">{item.label}</span>
+            </NavLink>
+          );
+        })}
       </nav>
     </div>
   );

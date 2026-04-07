@@ -1,503 +1,215 @@
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import { Upload, TestTube2, Calendar, Sparkles, Activity, Heart } from 'lucide-react';
-import { useLabStore } from '@/store/labStore';
+import { Link } from 'react-router-dom';
+import { Plus, Sparkles, Upload, Check } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/lib/supabase';
 import type { LabDraw, LabValue } from '@/types/lab.types';
 
-const CATEGORY_TABS = [
-  { id: 'all', label: 'All' },
-  { id: 'metabolic', label: 'Metabolic' },
-  { id: 'cardiovascular', label: 'Cardiovascular' },
-  { id: 'thyroid', label: 'Thyroid' },
-  { id: 'liver', label: 'Liver' },
-  { id: 'kidney', label: 'Kidney' },
-  { id: 'nutrients', label: 'Nutrients' },
-  { id: 'hormones', label: 'Hormones' },
-  { id: 'inflammation', label: 'Inflammation' },
-  { id: 'cbc', label: 'CBC' },
-];
-
-const CATEGORY_SUBTITLES: Record<string, string> = {
-  thyroid: 'GLANDULAR HEALTH',
-  metabolic: 'METABOLIC PANEL',
-  cardiovascular: 'CARDIAC MARKERS',
-  liver: 'HEPATIC FUNCTION',
-  kidney: 'RENAL FUNCTION',
-  nutrients: 'MICRONUTRIENT STATUS',
-  hormones: 'ENDOCRINE PANEL',
-  inflammation: 'INFLAMMATORY MARKERS',
-  cbc: 'COMPLETE BLOOD COUNT',
-};
-
-interface DrawWithSummary extends LabDraw {
-  markerCount: number;
-  criticalCount: number;
-  monitorCount: number;
-  optimalCount: number;
-  categories: string[];
+interface DrawWithValues extends LabDraw {
+  values: LabValue[];
 }
 
-function getStatusLabel(flag: string | null | undefined): { label: string; color: string } {
-  switch (flag) {
-    case 'optimal':
-      return { label: 'OPTIMAL', color: 'bg-[#1F403D]/20 text-[#6DB8AF]' };
-    case 'deficient':
-    case 'elevated':
-    case 'critical_low':
-    case 'critical_high':
-      return { label: 'DEFICIENCY', color: 'bg-[#CF6679]/20 text-[#CF6679]' };
-    case 'suboptimal_low':
-    case 'suboptimal_high':
-      return { label: 'SUB-OPTIMAL', color: 'bg-[#C9A84C]/20 text-[#C9A84C]' };
-    default:
-      return { label: 'SYSTEMIC CALM', color: 'bg-[#1F403D]/20 text-[#6DB8AF]' };
-  }
+function getStatusBadge(flag: string | null) {
+  if (flag === 'optimal') return { text: 'Optimal', bg: 'bg-emerald-500/10', border: 'border-emerald-500/20', color: 'text-emerald-300' };
+  if (flag === 'deficient' || flag === 'elevated') return { text: 'Deficiency', bg: 'bg-[#CF6679]/10', border: 'border-[#CF6679]/20', color: 'text-[#CF6679]' };
+  if (flag === 'suboptimal_low' || flag === 'suboptimal_high') return { text: 'Sub-Optimal', bg: 'bg-[#C9A84C]/10', border: 'border-[#C9A84C]/20', color: 'text-[#C9A84C]' };
+  return { text: 'Normal', bg: 'bg-[#A0ACAB]/10', border: 'border-[#A0ACAB]/20', color: 'text-[#A0ACAB]' };
 }
 
-function getRangeBarColor(flag: string | null | undefined): string {
-  switch (flag) {
-    case 'optimal':
-      return 'bg-[#1F403D]';
-    case 'deficient':
-    case 'elevated':
-    case 'critical_low':
-    case 'critical_high':
-      return 'bg-[#CF6679]';
-    case 'suboptimal_low':
-    case 'suboptimal_high':
-      return 'bg-[#C9A84C]';
-    default:
-      return 'bg-[#1F403D]';
-  }
+function getBarColor(flag: string | null) {
+  if (flag === 'optimal') return '#1F403D';
+  if (flag === 'deficient' || flag === 'elevated') return '#CF6679';
+  if (flag === 'suboptimal_low' || flag === 'suboptimal_high') return '#C9A84C';
+  return '#A0ACAB';
 }
 
-function getRangePercent(value: number | null, refLow: number | null, refHigh: number | null): number {
-  if (value == null || refLow == null || refHigh == null) return 50;
-  const range = refHigh - refLow;
-  if (range <= 0) return 50;
-  const pct = ((value - refLow) / range) * 100;
-  return Math.max(5, Math.min(95, pct));
+function getBarPercent(value: number, low: number | null, high: number | null): number {
+  const min = low ?? 0;
+  const max = high ?? (value * 2);
+  if (max <= min) return 50;
+  return Math.min(100, Math.max(5, ((value - min) / (max - min)) * 100));
 }
 
 export default function LabsHome() {
-  const navigate = useNavigate();
   const { user } = useAuth();
-  const { setDraws, setValues } = useLabStore();
   const [loading, setLoading] = useState(true);
-  const [drawSummaries, setDrawSummaries] = useState<DrawWithSummary[]>([]);
-  const [activeTab, setActiveTab] = useState('all');
-  const [allValues, setAllValues] = useState<LabValue[]>([]);
+  const [draws, setDraws] = useState<DrawWithValues[]>([]);
 
   useEffect(() => {
     if (!user) return;
-    loadLabData();
+    loadData();
   }, [user]);
 
-  async function loadLabData() {
-    try {
-      const [drawsRes, valuesRes] = await Promise.all([
-        supabase
-          .from('lab_draws')
-          .select('*')
-          .eq('user_id', user!.id)
-          .order('draw_date', { ascending: false }),
-        supabase
-          .from('lab_values')
-          .select('*')
-          .eq('user_id', user!.id),
-      ]);
-
-      const loadedDraws: LabDraw[] = drawsRes.data ?? [];
-      const loadedValues: LabValue[] = valuesRes.data ?? [];
-
-      setDraws(loadedDraws);
-      setValues(loadedValues);
-      setAllValues(loadedValues);
-
-      const summaries: DrawWithSummary[] = loadedDraws.map((draw) => {
-        const drawValues = loadedValues.filter((v) => v.draw_id === draw.id);
-        const categories = [...new Set(drawValues.map((v) => v.marker_category).filter(Boolean))] as string[];
-
-        let criticalCount = 0;
-        let monitorCount = 0;
-        let optimalCount = 0;
-
-        for (const v of drawValues) {
-          if (
-            v.optimal_flag === 'deficient' ||
-            v.optimal_flag === 'elevated' ||
-            v.standard_flag === 'critical_low' ||
-            v.standard_flag === 'critical_high'
-          ) {
-            criticalCount++;
-          } else if (
-            v.optimal_flag === 'suboptimal_low' ||
-            v.optimal_flag === 'suboptimal_high'
-          ) {
-            monitorCount++;
-          } else if (v.optimal_flag === 'optimal') {
-            optimalCount++;
-          }
-        }
-
-        return {
-          ...draw,
-          markerCount: drawValues.length,
-          criticalCount,
-          monitorCount,
-          optimalCount,
-          categories,
-        };
-      });
-
-      setDrawSummaries(summaries);
-    } catch (err) {
-      console.error('Failed to load lab data:', err);
-    } finally {
-      setLoading(false);
+  async function loadData() {
+    setLoading(true);
+    const { data: drawData } = await supabase.from('lab_draws').select('*').eq('user_id', user!.id).order('draw_date', { ascending: false });
+    if (drawData && drawData.length > 0) {
+      const withValues: DrawWithValues[] = [];
+      for (const draw of drawData) {
+        const { data: vals } = await supabase.from('lab_values').select('*').eq('draw_id', draw.id);
+        withValues.push({ ...draw, values: (vals || []) as LabValue[] });
+      }
+      setDraws(withValues);
     }
+    setLoading(false);
   }
 
-  const filterDrawsByCategory = (draws: DrawWithSummary[], category: string) => {
-    if (category === 'all') return draws;
-    return draws.filter((d) => d.categories.includes(category));
-  };
+  const latestDraw = draws[0];
+  const hasLabs = draws.length > 0;
 
-  const filtered = filterDrawsByCategory(drawSummaries, activeTab);
-
-  // Group values by category for biomarker section display
-  const latestDrawValues = drawSummaries.length > 0
-    ? allValues.filter((v) => v.draw_id === drawSummaries[0].id)
+  // Group values by category
+  const categories = latestDraw
+    ? Object.entries(
+        latestDraw.values.reduce<Record<string, LabValue[]>>((acc, v) => {
+          const cat = v.marker_category || 'Other';
+          if (!acc[cat]) acc[cat] = [];
+          acc[cat].push(v);
+          return acc;
+        }, {})
+      )
     : [];
 
-  const valuesByCategory = latestDrawValues.reduce<Record<string, LabValue[]>>((acc, v) => {
-    const cat = v.marker_category || 'other';
-    if (!acc[cat]) acc[cat] = [];
-    acc[cat].push(v);
-    return acc;
-  }, {});
-
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-[#0A0C0F] px-6 pt-8 pb-32 font-['DM_Sans',sans-serif]">
-        <div className="animate-pulse space-y-6">
-          <div className="h-10 bg-[#15181C] rounded-[10px] w-2/3" />
-          <div className="h-5 bg-[#15181C] rounded-[10px] w-full" />
-          <div className="h-14 bg-[#15181C] rounded-[10px] w-full" />
-          <div className="h-64 bg-[#15181C] rounded-[10px]" />
-          <div className="h-48 bg-[#15181C] rounded-[10px]" />
-        </div>
-      </div>
-    );
-  }
-
   return (
-    <div className="min-h-screen bg-[#0A0C0F] px-6 pt-8 pb-32 font-['DM_Sans',sans-serif] space-y-10">
-      {/* Header */}
-      <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}>
-        <span className="text-[10px] uppercase tracking-[0.2em] font-bold text-[#A0ACAB]">
-          DIAGNOSTIC OVERVIEW
-        </span>
-        <h1 className="font-['Newsreader',serif] text-4xl text-[#E2E2E6] mt-2">
-          Your Lab Results
-        </h1>
-        <button
-          onClick={() => navigate('/app/labs/upload')}
-          className="w-full mt-6 bg-[#1F403D] text-white rounded-[10px] py-4 uppercase tracking-[0.15em] font-bold text-sm flex items-center justify-center gap-2"
+    <div className="space-y-12">
+      {/* Header — from stitch27 */}
+      <section className="flex flex-col md:flex-row md:items-end justify-between gap-6">
+        <div>
+          <span className="text-[#1F403D] text-[10px] font-bold uppercase tracking-[0.25em] mb-2 block">Diagnostic Overview</span>
+          <h2 className="font-['Newsreader',serif] text-5xl text-[#E2E2E6] tracking-tight leading-tight">Your Lab Results</h2>
+        </div>
+        <Link
+          to="/app/labs/upload"
+          className="bg-[#1F403D] text-white px-7 py-3.5 rounded-xl font-bold flex items-center gap-2 hover:brightness-110 transition-all active:scale-95 shadow-xl border border-white/5"
         >
-          <Upload className="w-4 h-4" />
-          + ADD LABS
-        </button>
-      </motion.div>
+          <Plus className="w-4 h-4" />
+          <span className="text-xs uppercase tracking-widest">+ Add Labs</span>
+        </Link>
+      </section>
 
-      {drawSummaries.length === 0 ? (
-        /* Empty State */
-        <motion.div
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.05 }}
-          className="bg-[#15181C] rounded-[10px] border border-[rgba(63,73,72,0.2)] p-8 text-center"
-        >
-          <div className="flex justify-center mb-6">
-            <div className="w-16 h-16 rounded-full bg-[#1E2226] flex items-center justify-center">
-              <TestTube2 className="w-7 h-7 text-[#A0ACAB]" />
-            </div>
-          </div>
-          <h2 className="font-['Newsreader',serif] text-2xl text-[#E2E2E6]">
-            No lab results yet
-          </h2>
-          <p className="text-sm text-[#A0ACAB] mt-3 leading-relaxed max-w-[300px] mx-auto">
-            Upload your first lab report to get started. Our AI will analyze your results using optimal ranges and identify patterns your doctor may have missed.
-          </p>
-          <button
-            onClick={() => navigate('/app/labs/upload')}
-            className="mt-5 text-sm font-bold text-[#E2E2E6] underline underline-offset-4 decoration-[#A0ACAB]/30"
-          >
-            Upload Your First Lab Report
-          </button>
-        </motion.div>
-      ) : (
-        /* Lab content */
+      {loading ? (
         <div className="space-y-6">
-          {/* Category Tabs */}
-          <div className="flex gap-2 overflow-x-auto pb-2 -mx-1 px-1 scrollbar-hide">
-            {CATEGORY_TABS.map((tab) => (
-              <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
-                className={`shrink-0 px-4 py-2 rounded-[24px] text-xs font-bold uppercase tracking-[0.15em] transition-colors ${
-                  activeTab === tab.id
-                    ? 'bg-[#1F403D] text-white'
-                    : 'bg-[#15181C] text-[#A0ACAB] border border-[rgba(63,73,72,0.2)]'
-                }`}
-              >
-                {tab.label}
-              </button>
-            ))}
-          </div>
+          {[1, 2, 3].map((i) => (
+            <div key={i} className="bg-[#1E2226] rounded-xl p-6 border border-[rgba(63,73,72,0.2)] animate-pulse h-32" />
+          ))}
+        </div>
+      ) : !hasLabs ? (
+        <>
+          {/* Empty State */}
+          <section className="text-center py-16">
+            <div className="w-20 h-20 bg-[#1E2226] rounded-full flex items-center justify-center mx-auto mb-6 border border-[#2C3433]/30">
+              <Upload className="w-8 h-8 text-[#A0ACAB]" strokeWidth={1.5} />
+            </div>
+            <h3 className="font-['Newsreader',serif] text-2xl text-[#E2E2E6] mb-4">No lab results yet</h3>
+            <p className="text-[#A0ACAB] text-sm max-w-sm mx-auto leading-relaxed mb-6">
+              Begin your clinical journey by uploading your latest blood panel. Our AI will synthesize the data into your personalized dossier.
+            </p>
+            <Link to="/app/labs/upload" className="text-[#E2E2E6] font-bold underline underline-offset-4 decoration-[#1F403D]">
+              Upload Your First Lab Report
+            </Link>
+          </section>
 
-          {/* Biomarker Sections by Category */}
-          {activeTab === 'all' ? (
-            Object.entries(valuesByCategory).map(([category, values]) => (
-              <motion.div
-                key={category}
-                initial={{ opacity: 0, y: 12 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="space-y-4"
-              >
-                {/* Category Header */}
-                <div className="flex items-center justify-between">
-                  <h2 className="font-['Newsreader',serif] text-xl text-[#E2E2E6] capitalize">
-                    {category}
-                  </h2>
-                  <span className="text-[10px] uppercase tracking-[0.2em] font-bold text-[#A0ACAB]">
-                    {CATEGORY_SUBTITLES[category.toLowerCase()] || 'BIOMARKERS'}
-                  </span>
-                </div>
-
-                {/* Biomarker Rows */}
+          {/* Smart Analysis Card — always shown */}
+          <section className="bg-[#1E2226] border border-[#3F4948] rounded-xl p-10 relative overflow-hidden shadow-2xl">
+            <div className="absolute -right-20 -top-20 w-80 h-80 bg-[#1F403D]/10 blur-[100px] rounded-full" />
+            <div className="flex items-center gap-5 mb-8">
+              <div className="w-14 h-14 rounded-lg bg-[#1F403D]/20 flex items-center justify-center border border-[#1F403D]/30">
+                <Sparkles className="w-7 h-7 text-[#1F403D]" strokeWidth={1.5} />
+              </div>
+              <div>
+                <h4 className="font-['Newsreader',serif] text-3xl text-[#E2E2E6]">Smart Clinical Analysis</h4>
+                <p className="text-[10px] text-[#A0ACAB] uppercase tracking-[0.3em] font-bold">Engineered Interpretation</p>
+              </div>
+            </div>
+            <p className="text-[#E2E2E6]/90 leading-relaxed text-sm font-light">
+              Upload your labs to receive AI-powered analysis comparing your biomarkers against <span className="text-[#1F403D] font-bold">optimal ranges</span>, not just standard reference ranges. We identify patterns your doctor may miss in a 12-minute appointment.
+            </p>
+          </section>
+        </>
+      ) : (
+        <>
+          {/* Biomarker Grid — from stitch27 */}
+          {categories.map(([category, values]) => (
+            <div key={category}>
+              <div className="flex items-center justify-between border-b border-[#3F4948] pb-2 mb-6">
+                <h3 className="font-['Newsreader',serif] text-xl text-[#E2E2E6]">{category}</h3>
+                <span className="text-[10px] text-[#A0ACAB] tracking-widest uppercase">Bio-Markers</span>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {values.map((val) => {
-                  const status = getStatusLabel(val.optimal_flag || val.standard_flag);
-                  const barColor = getRangeBarColor(val.optimal_flag || val.standard_flag);
-                  const pct = getRangePercent(
-                    val.value,
-                    val.standard_low ?? val.optimal_low,
-                    val.standard_high ?? val.optimal_high,
-                  );
+                  const badge = getStatusBadge(val.optimal_flag);
+                  const barColor = getBarColor(val.optimal_flag);
+                  const pct = getBarPercent(val.value, val.standard_low, val.standard_high);
+                  const isCritical = val.optimal_flag === 'deficient' || val.optimal_flag === 'elevated';
+                  const isSuboptimal = val.optimal_flag === 'suboptimal_low' || val.optimal_flag === 'suboptimal_high';
+
                   return (
                     <div
                       key={val.id}
-                      className="bg-[#15181C] rounded-[10px] border border-[rgba(63,73,72,0.2)] p-6"
+                      className="bg-[#1E2226] p-6 rounded-xl border border-[rgba(63,73,72,0.2)] shadow-[0_4px_20px_rgba(0,0,0,0.3)] relative overflow-hidden"
                     >
-                      <div className="flex items-start justify-between mb-3">
-                        <span className="text-xs uppercase tracking-widest text-[#A0ACAB]">
-                          {val.marker_name}
-                        </span>
-                        <span className={`text-[10px] uppercase tracking-[0.15em] font-bold px-3 py-1 rounded-[24px] ${status.color}`}>
-                          {status.label}
+                      {(isCritical || isSuboptimal) && (
+                        <div className="absolute top-0 left-0 w-1 h-full" style={{ backgroundColor: barColor, opacity: 0.6 }} />
+                      )}
+                      <div className="flex justify-between items-start mb-4">
+                        <span className="text-[10px] text-[#A0ACAB] uppercase tracking-wider">{val.marker_name}</span>
+                        <span className={`${badge.bg} ${badge.color} text-[9px] px-2.5 py-1 rounded-sm font-bold uppercase tracking-tighter border ${badge.border}`}>
+                          {badge.text}
                         </span>
                       </div>
-                      <div className="flex items-baseline gap-2 mb-4">
-                        <span className="text-3xl font-['Newsreader',serif] text-[#E2E2E6]">
-                          {val.value ?? '--'}
+                      <div className="flex items-baseline gap-2">
+                        <span className={`text-4xl font-['Newsreader',serif] leading-none ${isCritical ? 'text-[#CF6679]' : isSuboptimal ? 'text-[#C9A84C]' : 'text-[#E2E2E6]'}`}>
+                          {val.value}
                         </span>
-                        <span className="text-sm text-[#A0ACAB]">{val.unit || ''}</span>
+                        <span className="text-[11px] text-[#A0ACAB] font-medium">{val.unit}</span>
                       </div>
-                      {/* Range bar */}
-                      <div className="relative h-1 bg-[#282D33] rounded-full overflow-hidden mb-2">
-                        <div
-                          className={`absolute left-0 top-0 h-full rounded-full ${barColor}`}
-                          style={{ width: `${pct}%` }}
-                        />
+                      <div className="mt-5 h-1.5 w-full bg-[#1A1D1F] rounded-full overflow-hidden">
+                        <div className="h-full rounded-full" style={{ width: `${pct}%`, backgroundColor: barColor }} />
                       </div>
-                      <div className="flex justify-between">
-                        <span className="text-xs text-[#A0ACAB]">
-                          REF: {val.standard_low ?? val.optimal_low ?? '--'} - {val.standard_high ?? val.optimal_high ?? '--'} {val.unit || ''}
-                        </span>
+                      <div className="mt-3 flex justify-between text-[9px] text-[#A0ACAB] uppercase tracking-widest">
+                        <span>Ref: {val.standard_low ?? '—'} — {val.standard_high ?? '—'}</span>
                       </div>
                     </div>
                   );
                 })}
-              </motion.div>
-            ))
-          ) : (
-            /* Filtered draw cards */
-            filtered.length === 0 ? (
-              <p className="text-sm text-[#A0ACAB] py-8 text-center">
-                No lab draws with {activeTab} markers found.
-              </p>
-            ) : (
-              <div className="space-y-4">
-                {filtered.map((draw, index) => (
-                  <motion.div
-                    key={draw.id}
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: index * 0.05 }}
-                  >
-                    <button
-                      onClick={() => navigate(`/app/labs/${draw.id}`)}
-                      className="w-full text-left bg-[#15181C] rounded-[10px] border border-[rgba(63,73,72,0.2)] p-8 transition-transform active:scale-[0.98]"
-                    >
-                      <div className="flex items-start justify-between">
-                        <div>
-                          <div className="flex items-center gap-2 mb-1">
-                            <Calendar className="w-3.5 h-3.5 text-[#A0ACAB]" />
-                            <span className="text-[10px] uppercase tracking-[0.2em] font-bold text-[#A0ACAB]">
-                              {new Date(draw.draw_date).toLocaleDateString('en-US', {
-                                year: 'numeric',
-                                month: 'long',
-                                day: 'numeric',
-                              })}
-                            </span>
-                          </div>
-                          <h3 className="font-['Newsreader',serif] text-xl text-[#E2E2E6] mt-2">
-                            {draw.lab_name || 'Lab Results'}
-                          </h3>
-                          <p className="text-sm text-[#A0ACAB] mt-1">
-                            {draw.markerCount} markers analyzed
-                          </p>
-                        </div>
-                      </div>
-
-                      <div className="flex flex-wrap gap-2 mt-4">
-                        {draw.criticalCount > 0 && (
-                          <span className="text-[10px] uppercase tracking-[0.15em] font-bold px-3 py-1.5 rounded-[24px] bg-[#CF6679]/20 text-[#CF6679]">
-                            {draw.criticalCount} critical
-                          </span>
-                        )}
-                        {draw.monitorCount > 0 && (
-                          <span className="text-[10px] uppercase tracking-[0.15em] font-bold px-3 py-1.5 rounded-[24px] bg-[#C9A84C]/20 text-[#C9A84C]">
-                            {draw.monitorCount} monitor
-                          </span>
-                        )}
-                        {draw.optimalCount > 0 && (
-                          <span className="text-[10px] uppercase tracking-[0.15em] font-bold px-3 py-1.5 rounded-[24px] bg-[#1F403D]/20 text-[#6DB8AF]">
-                            {draw.optimalCount} optimal
-                          </span>
-                        )}
-                      </div>
-                    </button>
-                  </motion.div>
-                ))}
               </div>
-            )
-          )}
-        </div>
+            </div>
+          ))}
+
+          {/* Smart Analysis Card */}
+          <section className="bg-[#1E2226] border border-[#3F4948] rounded-xl p-10 relative overflow-hidden shadow-2xl">
+            <div className="absolute -right-20 -top-20 w-80 h-80 bg-[#1F403D]/10 blur-[100px] rounded-full" />
+            <div className="flex items-center gap-5 mb-8">
+              <div className="w-14 h-14 rounded-lg bg-[#1F403D]/20 flex items-center justify-center border border-[#1F403D]/30">
+                <Sparkles className="w-7 h-7 text-[#1F403D]" strokeWidth={1.5} />
+              </div>
+              <div>
+                <h4 className="font-['Newsreader',serif] text-3xl text-[#E2E2E6]">Smart Clinical Analysis</h4>
+                <p className="text-[10px] text-[#A0ACAB] uppercase tracking-[0.3em] font-bold">Engineered Interpretation</p>
+              </div>
+            </div>
+            <p className="text-[#E2E2E6]/90 leading-relaxed text-sm font-light">
+              {latestDraw.values.filter(v => v.optimal_flag !== 'optimal').length > 0
+                ? `${latestDraw.values.filter(v => v.optimal_flag !== 'optimal').length} markers require attention. While technically within standard lab ranges, these are critically low for peak physiological performance.`
+                : 'All markers are within optimal ranges. Continue current protocol.'}
+            </p>
+            <div className="mt-8 bg-[#282D33]/50 p-8 rounded-xl border border-[#3F4948]">
+              <h5 className="text-[11px] font-bold text-[#1F403D] uppercase tracking-[0.25em] mb-6 flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-[#1F403D]" />
+                Recommended Protocol
+              </h5>
+              <ul className="space-y-6">
+                <li className="flex gap-4">
+                  <Check className="w-5 h-5 text-[#1F403D] shrink-0" strokeWidth={1.5} />
+                  <div className="text-sm">
+                    <span className="text-[#E2E2E6] font-bold block mb-1">Upload additional panels</span>
+                    <span className="text-[#A0ACAB] text-xs leading-relaxed">More data enables more accurate pattern recognition across biomarkers.</span>
+                  </div>
+                </li>
+              </ul>
+            </div>
+          </section>
+        </>
       )}
-
-      {/* Smart Clinical Analysis Card - always shown */}
-      <motion.div
-        initial={{ opacity: 0, y: 16 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.1 }}
-        className="bg-[#15181C] rounded-[10px] border border-[rgba(63,73,72,0.2)] p-8"
-      >
-        <div className="flex items-center gap-3 mb-1">
-          <Sparkles className="w-5 h-5 text-[#C9A84C]" />
-          <span className="text-[10px] uppercase tracking-[0.2em] font-bold text-[#A0ACAB]">
-            ENGINEERED INTERPRETATION
-          </span>
-        </div>
-        <h2 className="font-['Newsreader',serif] text-2xl text-[#E2E2E6] mt-3">
-          Smart Clinical Analysis
-        </h2>
-        <p className="text-sm text-[#A0ACAB] mt-4 leading-relaxed">
-          Our analysis engine evaluates your biomarkers against{' '}
-          <span className="text-[#1F403D] font-bold">optimal functional ranges</span> rather than
-          standard laboratory reference intervals. This approach identifies{' '}
-          <span className="text-[#1F403D] font-bold">subclinical patterns</span> that conventional
-          screening may overlook.
-        </p>
-        <p className="text-sm text-[#A0ACAB]/70 mt-3 italic leading-relaxed">
-          "The absence of disease is not the presence of health. Optimal ranges reflect where your
-          physiology thrives, not merely survives."
-        </p>
-
-        {/* Recommended Protocol */}
-        <div className="mt-6 pt-5 border-t border-[#2C3433]">
-          <span className="text-[10px] uppercase tracking-[0.2em] font-bold text-[#A0ACAB]">
-            RECOMMENDED PROTOCOL
-          </span>
-          <div className="mt-4 space-y-3">
-            <div className="flex items-center gap-3">
-              <div className="w-2 h-2 rounded-full bg-[#1F403D]" />
-              <span className="text-sm text-[#E2E2E6]">Vitamin D3 <span className="text-[#A0ACAB]">5,000 IU daily</span></span>
-            </div>
-            <div className="flex items-center gap-3">
-              <div className="w-2 h-2 rounded-full bg-[#1F403D]" />
-              <span className="text-sm text-[#E2E2E6]">Magnesium Glycinate <span className="text-[#A0ACAB]">400mg nightly</span></span>
-            </div>
-            <div className="flex items-center gap-3">
-              <div className="w-2 h-2 rounded-full bg-[#1F403D]" />
-              <span className="text-sm text-[#E2E2E6]">Omega-3 (EPA/DHA) <span className="text-[#A0ACAB]">2g daily with food</span></span>
-            </div>
-          </div>
-        </div>
-      </motion.div>
-
-      {/* Analytical Framework */}
-      <div className="space-y-4">
-        <div className="border-t border-[#2C3433] pt-8">
-          <span className="text-[10px] uppercase tracking-[0.2em] font-bold text-[#A0ACAB]">
-            ANALYTICAL FRAMEWORK
-          </span>
-        </div>
-
-        <motion.div
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.15 }}
-          className="bg-[#15181C] rounded-[10px] border border-[rgba(63,73,72,0.2)] p-8"
-        >
-          <div className="w-12 h-12 rounded-[10px] bg-[#1E2226] flex items-center justify-center mb-4">
-            <Sparkles className="w-5 h-5 text-[#C9A84C]" />
-          </div>
-          <h3 className="font-['Newsreader',serif] text-xl text-[#E2E2E6] mb-2">
-            Nutrient Density
-          </h3>
-          <p className="text-sm text-[#A0ACAB] leading-relaxed">
-            Tracking vitamins and minerals against optimal levels to identify subclinical deficiencies before they become symptomatic.
-          </p>
-        </motion.div>
-
-        <motion.div
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
-          className="bg-[#15181C] rounded-[10px] border border-[rgba(63,73,72,0.2)] p-8"
-        >
-          <div className="w-12 h-12 rounded-[10px] bg-[#1E2226] flex items-center justify-center mb-4">
-            <Activity className="w-5 h-5 text-[#C9A84C]" />
-          </div>
-          <h3 className="font-['Newsreader',serif] text-xl text-[#E2E2E6] mb-2">
-            Hormone Balance
-          </h3>
-          <p className="text-sm text-[#A0ACAB] leading-relaxed">
-            Mapping metabolic and stress hormones to reveal imbalances driving fatigue, weight gain, and mood disruption.
-          </p>
-        </motion.div>
-
-        <motion.div
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.25 }}
-          className="bg-[#15181C] rounded-[10px] border border-[rgba(63,73,72,0.2)] p-8"
-        >
-          <div className="w-12 h-12 rounded-[10px] bg-[#1E2226] flex items-center justify-center mb-4">
-            <Heart className="w-5 h-5 text-[#C9A84C]" />
-          </div>
-          <h3 className="font-['Newsreader',serif] text-xl text-[#E2E2E6] mb-2">
-            Cardiovascular Risk
-          </h3>
-          <p className="text-sm text-[#A0ACAB] leading-relaxed">
-            Advanced particle testing beyond standard cholesterol to reveal true atherosclerotic risk and metabolic syndrome markers.
-          </p>
-        </motion.div>
-      </div>
     </div>
   );
 }
